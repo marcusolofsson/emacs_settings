@@ -7,6 +7,11 @@
 # projectile stuff
 projectile*
 
+# temp emacs files
+
+\#*\#
+
+
 elpa/
 backups/
 auto-save-list/
