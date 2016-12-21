@@ -88,14 +88,13 @@
 (require 'yasnippet)
 (require 'airline-themes)
 
+(require 'cpp-setup)
 
-(set-default-font "Source Code Pro for Powerline-12")
+(set-frame-font "Source Code Pro for Powerline-12")
 
 (powerline-center-theme)
 ;;(setq sml/theme 'dark)
 ;;(sml/setup)
-(setq c-basic-offset 4)
-
 ;; (require 'setup-helm-gtags)
 (setq inhibit-startup-message t) ;; hide the startup message
 (load-theme 'spacemacs-dark t)
@@ -118,7 +117,7 @@
 (windmove-default-keybindings 'meta)
 
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
-(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+
 
 (load-theme 'airline-solarized-alternate-gui t)
 
