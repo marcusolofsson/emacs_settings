@@ -8,8 +8,8 @@
 projectile*
 
 # temp emacs files
-
 \#*\#
+.\#*
 
 recentf
 elpa/
