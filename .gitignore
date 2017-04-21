@@ -16,3 +16,7 @@ elpa/
 backups/
 auto-save-list/
 network-security.data
+irony/
+
+# Mac specific stuff
+.DS_Store
