@@ -7,4 +7,5 @@
 (setq c-basic-offset 4)
 (setq c++-basic-offset 4)
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+(add-to-list 'auto-mode-alist '("\\.cc\\'" . c++-mode))
 (provide 'cpp-setup)

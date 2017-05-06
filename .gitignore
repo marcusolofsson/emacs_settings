@@ -14,9 +14,10 @@ projectile*
 recentf
 elpa/
 backups/
+eshell/
 auto-save-list/
 network-security.data
 irony/
-
+bookmarks
 # Mac specific stuff
 .DS_Store

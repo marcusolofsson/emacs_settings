@@ -39,15 +39,17 @@
     cmake-ide
     cmake-mode
     dired+
+    dired-efap
     dtrt-indent
     duplicate-thing
     elpy
+    exec-path-from-shell
     flycheck
-    flycheck-irony
+;    flycheck-irony
     flycheck-pyflakes
     flycheck-rtags
     flymake-puppet
-    irony
+;    irony
     helm
     helm-c-yasnippet
     helm-company
@@ -70,6 +72,7 @@
     s
     smart-mode-line
     spacemacs-theme
+    transpose-frame
     undo-tree
     yasnippet
     yaml-mode))
@@ -83,21 +86,39 @@
 
 ;; BASIC CUSTOMIZATION
 ;; --------------------------------------
-(require 'duplicate-thing)
-(require 'undo-tree)
+(require 'airline-themes)
 (require 'cmake-mode)
-(require 'yaml-mode)
+(require 'company)
+(require 'cpp-setup)
+(require 'dired-efap)
 (require 'dtrt-indent)
+(require 'duplicate-thing)
+(require 'eww)
+(require 'exec-path-from-shell)
 (require 'setup-helm)
 (require 'powerline)
-(require 'eww)
+(require 'transpose-frame)
+(require 'undo-tree)
+(require 'yaml-mode)
 (require 'yasnippet)
-(require 'airline-themes)
 
-(require 'cpp-setup)
+
+
+; set auto-saves to ~/.emacs.d/auto-save
+(setq auto-save-file-name-transforms
+          `((".*" ,(concat user-emacs-directory "auto-save/") t)))
+
+; set backups to ~/.emacs.d/backups
+(setq backup-directory-alist
+      `(("." . ,(expand-file-name
+                 (concat user-emacs-directory "backups")))))
+
+(define-key dired-mode-map [f2] 'dired-efap)
 
 (set-frame-font "Source Code Pro for Powerline-12")
 
+(exec-path-from-shell-initialize)
+;;(setq exec-path (append exec-path '("/usr/local/opt/llvm/lib" "/usr/local/opt/llvm/bin")))
 (powerline-center-theme)
 ;;(setq sml/theme 'dark)
 ;;(sml/setup)
@@ -172,6 +193,24 @@
       airline-utf-glyph-branch              #xe0a0
       airline-utf-glyph-readonly            #xe0a2
       airline-utf-glyph-linenumber          #xe0a1)
+
+
+; Enable company-mode in global.
+(add-hook 'after-init-hook 'global-company-mode)
+
+;; CMAKE - stuff
+;; -----------------------------------------
+
+; Add cmake listfile names to the mode list.
+(require 'cmake-mode)
+(setq auto-mode-alist
+	  (append
+	   '(("CMakeLists\\.txt\\'" . cmake-mode))
+	   '(("\\.cmake\\'" . cmake-mode))
+	   auto-mode-alist))
+(autoload 'cmake-font-lock-activate "cmake-font-lock" nil t)
+(add-hook 'cmake-mode-hook 'cmake-font-lock-activate)
+; (autoload 'cmake-mode "~/CMake/Auxiliary/cmake-mode.el" t)
 
 
 ; (defun shk-yas/helm-prompt (prompt choices &optional display-fn)
@@ -301,8 +340,6 @@
 
 ; (setq company-idle-delay 0)
 
-
-; (add-hook 'after-init-hook 'global-company-mode)
 
 ; (setq rtags-completions-enabled t)
 ; (eval-after-load 'company
