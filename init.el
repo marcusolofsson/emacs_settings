@@ -32,8 +32,8 @@
     better-defaults
     company
     company-flx
-    company-irony
-    company-irony-c-headers
+    ;company-irony                       
+    ;company-irony-c-headers
     company-rtags
     ;;ac-clang
     cmake-ide
@@ -249,14 +249,14 @@
 (rtags-enable-standard-keybindings)
 
 
-(require 'company-irony)
-(require 'irony)
+;(require 'company-irony)
+;(require 'irony)
 (require 'helm-rtags)
 
 (setq rtags-use-helm t)
 ; (require 'company-clang)
 ; (require 'company-yasnippet)
-(require 'company-irony-c-headers)
+;(require 'company-irony-c-headers)
 ; (require 'flycheck-rtags)
 
 
@@ -267,9 +267,9 @@
 
 
 ;; Irony for C++ dev
-(add-hook 'c++-mode-hook 'irony-mode)
-(add-hook 'c-mode-hook 'irony-mode)
-(add-hook 'objc-mode-hook 'irony-mode)
+;(add-hook 'c++-mode-hook 'irony-mode)
+;(add-hook 'c-mode-hook 'irony-mode)
+;(add-hook 'objc-mode-hook 'irony-mode)
 
 
 
