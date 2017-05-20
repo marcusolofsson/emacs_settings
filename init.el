@@ -32,8 +32,8 @@
     better-defaults
     company
     company-flx
-    ;company-irony                       
-    ;company-irony-c-headers
+    company-irony                       
+    company-irony-c-headers
     company-rtags
     ;;ac-clang
     cmake-ide
@@ -45,11 +45,11 @@
     elpy
     exec-path-from-shell
     flycheck
-;    flycheck-irony
+    flycheck-irony
     flycheck-pyflakes
     flycheck-rtags
     flymake-puppet
-;    irony
+    irony
     helm
     helm-c-yasnippet
     helm-company
@@ -149,12 +149,14 @@
 (load-theme 'airline-solarized-alternate-gui t)
 
 (setq yas-snippet-dirs
-      '("~/.emacs.d/snippets"
-        "~/emacs/snippets"))
+      '("~/.emacs.d/snippets"))
 
 (yas-global-mode 1)
+(define-key yas-minor-mode-map (kbd "<tab>") nil)
+(define-key yas-minor-mode-map (kbd "TAB") nil)
+(define-key yas-minor-mode-map (kbd  "C t t") 'yas-expand)
 
-
+  
 (defadvice undo-tree-undo (around keep-region activate)
   (if (use-region-p)
       (let ((m (set-marker (make-marker) (mark)))
@@ -248,16 +250,15 @@
 (setq rtags-autostart-diagnostics t)
 (rtags-enable-standard-keybindings)
 
-
-;(require 'company-irony)
-;(require 'irony)
+(require 'irony)
+(require 'company-irony)
 (require 'helm-rtags)
 
 (setq rtags-use-helm t)
 ; (require 'company-clang)
-; (require 'company-yasnippet)
-;(require 'company-irony-c-headers)
-; (require 'flycheck-rtags)
+(require 'company-yasnippet)
+(require 'company-irony-c-headers)
+(require 'flycheck-rtags)
 
 
 
@@ -267,9 +268,9 @@
 
 
 ;; Irony for C++ dev
-;(add-hook 'c++-mode-hook 'irony-mode)
-;(add-hook 'c-mode-hook 'irony-mode)
-;(add-hook 'objc-mode-hook 'irony-mode)
+(add-hook 'c++-mode-hook 'irony-mode)
+(add-hook 'c-mode-hook 'irony-mode)
+(add-hook 'objc-mode-hook 'irony-mode)
 
 
 
