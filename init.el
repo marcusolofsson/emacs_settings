@@ -44,6 +44,7 @@
     duplicate-thing
     elpy
     exec-path-from-shell
+    f
     flycheck
     flycheck-irony
     flycheck-pyflakes
@@ -62,6 +63,7 @@
     magit
     magit-filenotify
     material-theme
+    move-text
     multiple-cursors
     org
     org-projectile
@@ -95,6 +97,7 @@
 (require 'duplicate-thing)
 (require 'eww)
 (require 'exec-path-from-shell)
+(require 'move-text)
 (require 'setup-helm)
 (require 'powerline)
 (require 'transpose-frame)
@@ -102,7 +105,8 @@
 (require 'yaml-mode)
 (require 'yasnippet)
 
-
+(global-set-key (kbd "<M-S-down>") 'move-text-down)
+(global-set-key (kbd "<M-S-up>") 'move-text-up)
 
 ; set auto-saves to ~/.emacs.d/auto-save
 (setq auto-save-file-name-transforms
@@ -154,7 +158,7 @@
 (yas-global-mode 1)
 (define-key yas-minor-mode-map (kbd "<tab>") nil)
 (define-key yas-minor-mode-map (kbd "TAB") nil)
-(define-key yas-minor-mode-map (kbd  "C t t") 'yas-expand)
+(define-key yas-minor-mode-map (kbd  "C-t t") 'yas-expand)
 
   
 (defadvice undo-tree-undo (around keep-region activate)
@@ -236,6 +240,12 @@
 ;       nil))
 
 
+;; REZ CONFIGURATION
+;; --------------------------------------
+(require 'cmake-rez)
+(cmake-rez-check-active "~/dev/hive/queen")
+
+
 ;; RTAGS CONFIGURATION
 ;; --------------------------------------
 (require 'rtags)
@@ -313,6 +323,9 @@
   '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
 
 (cmake-ide-setup)
+
+
+
 
 
 
@@ -414,7 +427,8 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (yaml-mode undo-tree spacemacs-theme smart-mode-line rtags puppet-mode org-projectile multiple-cursors material-theme magit-filenotify magit helm-c-yasnippet helm-flx helm-swoop helm-projectile helm flymake-puppet flycheck-pyflakes flycheck-irony flycheck elpy duplicate-thing dtrt-indent dired+ cmake-mode cmake-ide company-irony-c-headers company-irony company-flx company better-defaults airline-themes))))
+    (yaml-mode undo-tree spacemacs-theme smart-mode-line rtags puppet-mode org-projectile multiple-cursors material-theme magit-filenotify magit helm-c-yasnippet helm-flx helm-swoop helm-projectile helm flymake-puppet flycheck-pyflakes flycheck-irony flycheck elpy duplicate-thing dtrt-indent dired+ cmake-mode cmake-ide company-irony-c-headers company-irony company-flx company better-defaults airline-themes)))
+ '(send-mail-function (quote mailclient-send-it)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
