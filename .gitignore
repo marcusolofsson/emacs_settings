@@ -1,0 +1,23 @@
+# Compiled
+*.elc
+
+# Packaging
+.cask
+
+# projectile stuff
+projectile*
+
+# temp emacs files
+\#*\#
+.\#*
+
+recentf
+elpa/
+backups/
+eshell/
+auto-save-list/
+network-security.data
+irony/
+bookmarks
+# Mac specific stuff
+.DS_Store
