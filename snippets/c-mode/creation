@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: ilp creation template
+# key: creation
+# --
+//
+// Created by `(user-login-name)` on `(format-time-string "%d/%m/%y")`
+// Copyright (c) `(format-time-string "%Y")` ILP VFX. All rights reserved.
+//
