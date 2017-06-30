@@ -126,7 +126,8 @@
          '(("gnu" . "http://elpa.gnu.org/packages/")
            ("org" . "http://orgmode.org/elpa/")
            ("melpa" . "https://melpa.org/packages/")
-           ("melpa-stable" . "https://stable.melpa.org/packages/")))
+           ("melpa-stable" . "https://stable.melpa.org/packages/")
+           ("marmalade" . "https://marmalade-repo.org/packages/")))
 
    (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
    #+END_SRC
@@ -136,13 +137,14 @@
 
    #+BEGIN_SRC emacs-lisp
    (let* ((packages
-           '(auto-compile         ; automatically compile Emacs Lisp libraries
+           '(airline-themes       ; Airline theme
+             auto-compile         ; automatically compile Emacs Lisp libraries
              cider                ; Clojure Interactive Development Environment
              company              ; Modular text completion framework
              company-cmake        ; company-mode completion back-end for CMake
              company-flx          ; flx hooks for company
              company-irony        ; irony hooks for company
-             company-irony-headers; irony-headers hooks for compay
+             company-irony-c-headers; irony-headers hooks for compay
              company-go           ; company-mode backend for Go (using gocode)
              company-rtags        ; RTags backend for company
              cmake-ide            ; cmake IDE integration
@@ -185,7 +187,6 @@
              markdown-mode        ; Emacs Major mode for Markdown-formatted files
              material-theme       ; A Theme based on Google Material Design
              matlab-mode          ; MATLAB integration with Emacs
-             maude-mode           ; Emacs mode for the programming language Maude
              move-text            ; Move current line or region with M-up or M-down.
              multiple-cursors     ; Multiple cursors for Emacs
              olivetti             ; Minor mode for a nice writing environment
@@ -210,9 +211,10 @@
            ;; Remove all packages already installed
           (packages (remove-if 'package-installed-p packages)))
      (when packages
-       (ignore-errors (package-refresh-contents)
+       (ignore-errors 
+                      (package-refresh-contents)
                       (mapcar 'package-install packages)
-                      ;; This package is only relevant for Mac OS X.
+                        ;; This package is only relevant for Mac OS X.
                       (when (memq window-system '(mac ns))
                         (package-install 'exec-path-from-shell)))))
    #+END_SRC
@@ -231,7 +233,7 @@
      (setq ns-pop-up-frames nil
            mac-option-modifier nil
            mac-command-modifier 'meta
-           x-select-enable-clipboard t)
+           select-enable-clipboard t)
      (exec-path-from-shell-initialize))
    #+END_SRC
 
@@ -255,13 +257,14 @@
               ox-latex                 ; the latex-exporter (from org)
               ox-md                    ; Markdown exporter (from org)
               recentf                  ; recently opened files
-              tex-mode))               ; TeX, LaTeX, and SliTeX mode commands
+              tex-mode                 ; TeX, LaTeX, and SliTeX mode commands
+              company-yasnippet))
      (idle-require feature))
 
    (setq idle-require-idle-delay 5)
    (idle-require-mode 1)
    #+END_SRC
-
+   
 ** Sane defaults
 
    These are what /I/ consider to be saner defaults.
@@ -288,7 +291,7 @@
    buffer-local variable's default value.
 
    #+BEGIN_SRC emacs-lisp
-   (setq-default fill-column 119                    ; Maximum line width
+   (setq-default fill-column 119                   ; Maximum line width
                  truncate-lines t                  ; Don't fold lines
                  indent-tabs-mode nil              ; Use spaces instead of tabs
                  split-width-threshold 100         ; Split verticly by default
@@ -354,7 +357,7 @@
    #+END_SRC
 
 ** Modes
-
+   
    There are some modes that are enabled by default that I don't find
    particularly useful. We create a list of these modes, and disable all of
    these.
@@ -383,24 +386,204 @@
               golden-ratio-mode            ; Automatic resizing of windows
               projectile-global-mode       ; Manage and navigate projects
               recentf-mode                 ; Recently opened files
-              yas-global-mode
+              yas-global-mode              ; Enable yasnippet
               show-paren-mode))            ; Highlight matching parentheses
 
      (funcall mode 1))
 
    (add-hook 'after-init-hook 'global-company-mode)
-
+   (setq projectile-completion-system 'helm)
    (when (version< emacs-version "24.4")
      (eval-after-load 'auto-compile
        '((auto-compile-on-save-mode 1))))  ; compile .el files on save
-
    #+END_SRC
 
 ** Visuals
+   
+   Initialize the powerline with powerline-center
+   Change the color-theme to =spacemacs-dark=. Since I love me some darker 
+   themes. 
+
+   #+BEGIN_SRC emacs-lisp
+   (require 'airline-themes)
+   (load-theme 'airline-solarized-alternate-gui t)
+   (load-theme 'spacemacs-dark t)
+   (powerline-center-theme)
+   #+END_SRC
+
+   =leuven= is my preferred light theme, but =monokai= makes a very nice
+   dark theme. I want to be able to cycle between these.
+
+   #+BEGIN_SRC emacs-lisp
+   (defun cycle-themes ()
+     "Returns a function that lets you cycle your themes."
+     (lexical-let ((themes '#1=(leuven spacemacs-dark . #1#)))
+       (lambda ()
+         (interactive)
+         ;; Rotates the thme cycle and changes the current theme.
+         (load-theme (car (setq themes (cdr themes))) t))))
+   #+END_SRC
+
+   Use the [[http://www.levien.com/type/myfonts/inconsolata.html][Inconsolata]] font if it's installed on the system.
+
+   #+BEGIN_SRC emacs-lisp
+   (cond ((member "Source Code Pro" (font-family-list))
+          (set-face-attribute 'default nil :font "Source Code Pro-13"))
+         ((member "Inconsolata" (font-family-list))
+          (set-face-attribute 'default nil :font "Inconsolata-14")))
+   #+END_SRC
+
+   [[http://www.eskimo.com/~seldon/diminish.el][diminish.el]] allows you to hide or abbreviate their presence in the
+   modeline. I rarely look at the modeline to find out what minor-modes are
+   enabled, so I disable every global minor-mode, and some for lisp editing.
+
+   To ensure that the mode is loaded before diminish it, we should use
+   ~with-eval-after-load~. To avoid typing this multiple times a small macro
+   is provided.
+
+   #+BEGIN_SRC emacs-lisp
+   (defmacro safe-diminish (file mode &optional new-name)
+     `(with-eval-after-load ,file
+        (diminish ,mode ,new-name)))
+
+   (diminish 'auto-fill-function)
+   (safe-diminish "eldoc" 'eldoc-mode)
+   (safe-diminish "flyspell" 'flyspell-mode)
+   (safe-diminish "helm-mode" 'helm-mode)
+   (safe-diminish "projectile" 'projectile-mode)
+   (safe-diminish "paredit" 'paredit-mode "()")
+   #+END_SRC
+
+   Truncate the name of the buffer is a nice feature since a lot of buffers
+   can have somewhat of the same name.
+
+   #+BEGIN_SRC emacs-lisp
+   (setq uniquify-buffer-name-style 'forward)
+   (setq uniquify-separator "/")
+   (setq uniquify-after-kill-buffer-p t)
+   (setq uniquify-ignore-buffers-re "^\\*")
+   #+END_SRC
+
+
+   [[https://github.com/syohex/emacs-git-gutter-fringe][git-gutter-fringe]] gives a great visual indication of where you've made
+   changes since your last commit. There are several packages that performs
+   this task; the reason I've ended up with =git-gutter-fringe= is that it
+   reuses the (already present) fringe, saving a tiny bit of screen-estate.
+
+   I smuggled some configurations from [[https://github.com/torenord/.emacs.d/][torenord]], providing a cleaner look.
+
+   #+BEGIN_SRC emacs-lisp
+   (require 'git-gutter-fringe)
+
+   (dolist (p '((git-gutter:added    . "#0c0")
+                (git-gutter:deleted  . "#c00")
+                (git-gutter:modified . "#c0c")))
+     (set-face-foreground (car p) (cdr p))
+     (set-face-background (car p) (cdr p)))
+   #+END_SRC
+
+   Having line numbers in all buffers and windows is one thing I can't live 
+   without anymore.
+
+   #+BEGIN_SRC emacs-lisp
+   (global-linum-mode t)
+   #+END_SRC
+
+
+   New in Emacs 24.4 is the =prettify-symbols-mode=! It's neat.
+
+   #+BEGIN_SRC emacs-lisp
+   (setq-default prettify-symbols-alist '(("lambda" . ?λ)
+                                          ("delta" . ?Δ)
+                                          ("gamma" . ?Γ)
+                                          ("phi" . ?φ)
+                                          ("psi" . ?ψ)))
+   (setq powerline-utf-8-separator-left        #xe0b0
+         powerline-utf-8-separator-right       #xe0b2
+         airline-utf-glyph-separator-left      #xe0b0
+         airline-utf-glyph-separator-right     #xe0b2
+         airline-utf-glyph-subseparator-left   #xe0b1
+         airline-utf-glyph-subseparator-right  #xe0b3
+         airline-utf-glyph-branch              #xe0a0
+         airline-utf-glyph-readonly            #xe0a2
+         airline-utf-glyph-linenumber          #xe0a1)
+   #+END_SRC
 ** PDF Tools
+  
+   [[https://github.com/politza/pdf-tools][PDF Tools]] makes a huge improvement on the built-in [[http://www.gnu.org/software/emacs/manual/html_node/emacs/Document-View.html][doc-view-mode]]; the only
+   drawback is the =pdf-tools-install= (which has to be executed before the
+   package can be used) takes a couple of /seconds/ to execute. Instead of
+   running it at init-time, we'll run it whenever a PDF is opened. Note that
+   it's only slow on the first run!
+
+   #+BEGIN_SRC emacs-lisp
+   (add-hook 'pdf-tools-enabled-hook 'auto-revert-mode)
+   (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-tools-install))
+   #+END_SRC
+
 ** Completion
+
+   [[https://github.com/auto-complete/auto-complete][Auto-Complete]] has been a part of my config for years, but I want to try
+   out [[http://company-mode.github.io/][company-mode]]. If I code in an environment with good completion, I've
+   made an habit of trying to /guess/ function-names, and looking at the
+   completions for the right one. So I want a pretty aggressive completion
+   system, hence the no delay settings and short prefix length.
+
+   #+BEGIN_SRC emacs-lisp
+   (setq company-idle-delay 0
+         company-echo-delay 0
+         company-dabbrev-downcase nil
+         company-minimum-prefix-length 2
+         company-selection-wrap-around t
+         company-transformers '(company-sort-by-occurrence
+                                company-sort-by-backend-importance))
+   #+END_SRC
+   
+   Yasnippet is one of those things that I customize a lot so I have another
+   repository of them snippets under VCS. 
+
+   #+BEGIN_SRC emacs-lisp
+   (setq yas-snippet-dirs '(concat user-emacs-directory "snippets"))
+   #+END_SRC
+
 ** Helm
+   I've been a long time user of ~ido-mode~ along with ~ido-vertical-mode~, and
+   don't have any particular complaints. Though I've got a feeling I'm missing
+   out on something by not using [[https://github.com/emacs-helm/helm][helm]]. I will [[http://tuhdo.github.io/helm-intro.html][this excellent tutorial]] as a
+   starting point, along with some of the suggested configurations.
+
+   ~helm~ has a wonderful feature, being able to grep files by ~C-s~ anywhere,
+   which is useful. [[http://beyondgrep.com/][ack]] is a great ~grep~-replacement, and is designed to
+   search source code, so I want to use that if it's available.
+
+   Note that some changes in bindings are located in the key bindings (found
+   near the end of the configuration).
+
+   #+BEGIN_SRC emacs-lisp
+   (require 'helm)
+   (require 'helm-config)
+
+   (setq helm-split-window-in-side-p t
+         helm-M-x-fuzzy-match t
+         helm-buffers-fuzzy-matching t
+         helm-recentf-fuzzy-match t
+         helm-move-to-line-cycle-in-source t
+         projectile-completion-system 'helm)
+
+   (when (executable-find "ack")
+     (setq helm-grep-default-command
+           "ack -Hn --no-group --no-color %e %p %f"
+           helm-grep-default-recurse-command
+           "ack -H --no-group --no-color %e %p %f"))
+
+   (set-face-attribute 'helm-selection nil :background "cyan")
+
+   (helm-mode 1)
+   (helm-projectile-on)
+   (helm-adaptive-mode 1)
+   #+END_SRC
 ** Calendar
+
    Define a function to display week numbers in =calender-mode=. The snippet
    is from [[http://www.emacswiki.org/emacs/CalendarWeekNumbers][EmacsWiki]].
 
@@ -432,12 +615,76 @@
 
    #+BEGIN_SRC emacs-lisp
    (setq calendar-week-start-day 1
-         calendar-latitude 60.0
-         calendar-longitude 10.7
-         calendar-location-name "Oslo, Norway")
+         calendar-latitude 59.3
+         calendar-longitude 18.0
+         calendar-location-name "Stockholm, Sweden")
    #+END_SRC
 
 ** Flyspell
+
+   Flyspell offers on-the-fly spell checking. We can enable flyspell for all
+   text-modes with this snippet.
+
+   #+BEGIN_SRC emacs-lisp
+   (add-hook 'text-mode-hook 'turn-on-flyspell)
+   #+END_SRC
+
+   To use flyspell for programming there is =flyspell-prog-mode=, that only
+   enables spell checking for comments and strings. We can enable it for all
+   programming modes using the =prog-mode-hook=.
+
+   #+BEGIN_SRC emacs-lisp
+   (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+   #+END_SRC
+
+   Since ISpell hasn't been updated since 2011 I will tell flyspell to useful
+   aspell instead and it should still work everything as normal anyway
+
+   #+BEGIN_SRC emacs-lisp
+   (setq ispell-program-name "aspell")
+   #+END_SRC
+
+   
+   When working with several languages, we should be able to cycle through
+   the languages we most frequently use. Every buffer should have a separate
+   cycle of languages, so that cycling in one buffer does not change the
+   state in a different buffer (this problem occurs if you only have one
+   global cycle). We can implement this by using a [[http://www.gnu.org/software/emacs/manual/html_node/elisp/Closures.html][closure]].
+
+   #+BEGIN_SRC emacs-lisp
+   (defun cycle-languages ()
+     "Changes the ispell dictionary to the first element in
+   ISPELL-LANGUAGES, and returns an interactive function that cycles
+   the languages in ISPELL-LANGUAGES when invoked."
+     (lexical-let ((ispell-languages '#1=("english" "svenska" . #1#)))
+       (ispell-change-dictionary (car ispell-languages))
+       (lambda ()
+         (interactive)
+         ;; Rotates the languages cycle and changes the ispell dictionary.
+         (ispell-change-dictionary
+          (car (setq ispell-languages (cdr ispell-languages)))))))
+   #+END_SRC
+
+   =flyspell= signals an error if there is no spell-checking tool is
+   installed. We can advice =turn-on-flyspell= and =flyspell-prog-mode= to
+   only try to enable =flyspell= if a spell-checking tool is available. Also
+   we want to enable cycling the languages by typing =C-c l=, so we bind the
+   function returned from =cycle-languages=.
+
+   #+BEGIN_SRC emacs-lisp
+   (defadvice turn-on-flyspell (before check nil activate)
+     "Turns on flyspell only if a spell-checking tool is installed."
+     (when (executable-find ispell-program-name)
+       (local-set-key (kbd "C-c l") (cycle-languages))))
+   #+END_SRC
+
+   #+BEGIN_SRC emacs-lisp
+   (defadvice flyspell-prog-mode (before check nil activate)
+     "Turns on flyspell only if a spell-checking tool is installed."
+     (when (executable-find ispell-program-name)
+       (local-set-key (kbd "C-c l") (cycle-languages))))
+   #+END_SRC
+
 ** Org
    I use =org-agenda= along with =org-capture= for appointments and such.
 
@@ -474,6 +721,41 @@
         (custom-set-variables `(org-emphasis-alist ',org-emphasis-alist))))
    #+END_SRC
 
+** RTags
+
+   Rtags is a great code static analyzer (sorta)
+   it gives many features to the c++ tool-kit
+
+   #+BEGIN_SRC emacs-lisp
+   (require 'irony)
+   (require 'rtags)
+   (require 'company-irony)
+   (require 'company-rtags)
+   (require 'helm-rtags)
+   (require 'flycheck-rtags)
+
+   (setq rtags-completions-enabled t)
+   (push 'company-rtags company-backends)      
+   (setq rtags-autostart-diagnostics t)
+   (rtags-enable-standard-keybindings)
+
+   (defun flycheck-rtags-usage-setup ()
+     (flycheck-select-checker 'rtags)
+     (setq-local flycheck-highlighting-mode nil)
+     (setq-local flycheck-check-syntax-automatically nil))
+   (add-hook 'c-mode-common-hook #'flycheck-rtags-usage-setup)
+   (eval-after-load 'flycheck
+     '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
+   #+END_SRC
+
+** CMake-IDE
+   
+   I use the brilliant cmake-ide to auto-generate code from 
+   current project and feed it to rtags ans such things.
+
+   #+BEGIN_SRC emacs-lisp
+(cmake-ide-setup)
+   #+END_SRC
 ** Interactive functions
    <<sec:defuns>>
 
@@ -526,6 +808,19 @@
      (interactive)
      (jump-to-symbol-internal))
    #+END_SRC
+
+
+   Switching back and forth between two buffers is something that I can find
+   my self do quite a lot. So to speed that up there was a need for a quick 
+   swap thing.
+
+   #+BEGIN_SRC emacs-lisp
+   (defun switch-to-previous-buffer ()
+     "Switch to previously open buffer.Repeated invocations toggle between the two most recently open buffers."
+     (interactive)
+     (switch-to-buffer (other-buffer (current-buffer) 1)))
+   #+END_SRC
+
 
    I sometimes regret killing the =*scratch*=-buffer, and have realized I
    never want to actually kill it. I just want to get it out of the way, and
@@ -615,6 +910,22 @@
        ad-do-it))
    #+END_SRC
 
+   The undo stack can sometimes be a bit overwhelming so I found this neat 
+   undo-tree which helps me organize it better
+
+   #+BEGIN_SRC emacs-lisp
+   (defadvice undo-tree-undo (around keep-region activate)
+     (if (use-region-p)
+         (let ((m (set-marker (make-marker) (mark)))
+               (p (set-marker (make-marker) (point))))
+           ad-do-it
+           (goto-char p)
+           (set-mark m)
+           (set-marker p nil)
+           (set-marker m nil))
+       ad-do-it))
+   #+END_SRC
+
    When interactively changing the theme (using =M-x load-theme=), the
    current custom theme is not disabled. This often gives weird-looking
    results; we can advice =load-theme= to always disable themes currently
@@ -650,7 +961,7 @@
 
      (defun global-scale-internal (arg)
        (set-face-attribute 'default (selected-frame) :height arg)
-       (set-temporary-overlay-map
+       (set-transient-map
         (let ((map (make-sparse-keymap)))
           (define-key map (kbd "C-=") 'global-scale-up)
           (define-key map (kbd "C-+") 'global-scale-up)
@@ -785,8 +1096,74 @@
    #+BEGIN_SRC emacs-lisp
    (defun c-setup ()
      (local-set-key (kbd "C-c C-c") 'compile))
-
    (add-hook 'c-mode-common-hook 'c-setup)
+   #+END_SRC
+
+   There is as much debate about code styling as there is things about 
+   where everything should live. But here are my preferences as I like them.
+
+   #+BEGIN_SRC emacs-lisp
+   (defun c-argument-indent-hook () 
+     (c-set-offset 'arglist-intro '+))
+
+   (defun c-indentation-hook ()
+     (c-set-offset 'substatement-open 0)
+     (setq c-tab-always-indent t)
+     (setq c-basic-offset 4)
+     (setq c-indent-level 4)
+     (setq tab-stop-list '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60))
+     (setq tab-width 4)
+     (setq indent-tabs-mode nil))
+
+   (add-hook 'c-mode-common-hook 'c-indentation-hook)
+   (add-hook 'c-mode-common-hook 'c-argument-indent-hook)
+   #+END_SRC
+
+   I'm using irony to help me when coding in c++ 
+
+   #+BEGIN_SRC emacs-lisp
+   (add-hook 'c++-mode-hook 'irony-mode)
+   (add-hook 'c-mode-hook 'irony-mode)
+   (add-hook 'objc-mode-hook 'irony-mode)
+
+   (defun c-irony-completion-hook () 
+   (define-key irony-mode-map [remap completion-at-point] 'irony-completion-at-point-async)
+   (define-key irony-mode-map [remap complete-symbol] 'irony-completion-at-point-async))
+
+   (add-hook 'irony-mode-hook 'c-irony-completion-hook)
+   (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+   (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
+
+(setq company-backends (delete 'company-semantic company-backends))
+(eval-after-load 'company
+   '(add-to-list
+     'company-backends '(company-irony-c-headers company-irony)))
+
+(setq company-idle-delay 0)
+(add-hook 'c++-mode-hook 'flycheck-mode)
+(add-hook 'c-mode-hook 'flycheck-mode)
+   #+END_SRC
+
+** CMake
+   Here is all the specifics for cmake
+
+   #+BEGIN_SRC emacs-lisp
+   (require 'cmake-mode)
+   (setq auto-mode-alist 
+      (append 
+       '(("CMakeLists\\.txt\\'" . cmake-mode))
+       '(("\\.cmake\\'" . cmake-mode))
+       auto-mode-alist))
+   (autoload 'cmake-font-lock-activate "cmake-font-lock" nil t)
+   (add-hook 'cmake-mode-hook 'cmake-font-lock-activate)
+   #+END_SRC
+** YAML
+
+   Not all yaml extensions listens to the correct mode. So we need to tell
+   emacs the correct mode to use.
+
+   #+BEGIN_SRC emacs-lisp
+   (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
    #+END_SRC
 
 ** Java
@@ -918,18 +1295,20 @@
 
 ** Python
 
-   # [[http://tkf.github.io/emacs-jedi/released/][Jedi]] offers very nice auto completion for =python-mode=. Mind that it is
-   # dependent on some python programs as well, so make sure you follow the
-   # instructions from the site.
+   [[http://tkf.github.io/emacs-jedi/released/][Jedi]] offers very nice auto completion for =python-mode=. Mind that it is
+   dependent on some python programs as well, so make sure you follow the
+   instructions from the site.
 
-   # #+BEGIN_SRC emacs-lisp
-   # ;; (setq jedi:server-command
-   # ;;       (cons "python3" (cdr jedi:server-command))
-   # ;;       python-shell-interpreter "python3")
-   # (add-hook 'python-mode-hook 'jedi:setup)
-   # (setq jedi:complete-on-dot t)
-   # (add-hook 'python-mode-hook 'jedi:ac-setup)
-   # #+END_SRC
+   ;;#+BEGIN_SRC emacs-lisp
+   ;; (setq jedi:server-command
+   ;;       (cons "python3" (cdr jedi:server-command))
+   ;;       python-shell-interpreter "python3")
+   ;; (add-hook 'python-mode-hook 'jedi:setup)
+   ;; (setq jedi:complete-on-dot t)
+   ;; (add-hook 'python-mode-hook 'jedi:ac-setup)
+   ;;#+END_SRC
+
+   
 
 ** Haskell
 
@@ -943,6 +1322,7 @@
    #+END_SRC
 
 * Key bindings
+
   Inspired by [[http://stackoverflow.com/questions/683425/globally-override-key-binding-in-emacs][this StackOverflow post]] I keep a =custom-bindings-map= that
   holds all my custom bindings. This map can be activated by toggling a
   simple =minor-mode= that does nothing more than activating the map. This
@@ -952,7 +1332,7 @@
 
   #+BEGIN_SRC emacs-lisp
   (defvar custom-bindings-map (make-keymap)
-    "A keymap for custom bindings.")
+   " keymap for custom bindings.")
   #+END_SRC
 
 ** Bindings for [[https://github.com/magnars/expand-region.el][expand-region]]
@@ -996,8 +1376,8 @@
   (define-key custom-bindings-map (kbd "M-y")     'helm-show-kill-ring)
   (define-key custom-bindings-map (kbd "C-x b")   'helm-mini)
   (define-key custom-bindings-map (kbd "C-x C-f") 'helm-find-files)
-  (define-key custom-bindings-map (kbd "C-c h o") 'helm-occur)
-  (define-key custom-bindings-map (kbd "C-c h g") 'helm-google-suggest)
+  (define-key custom-bindings-map (kbd "<C-c h o>") 'helm-occur)
+  (define-key custom-bindings-map (kbd "<C-c h g>") 'helm-google-suggest)
   (define-key custom-bindings-map (kbd "M-i")     'helm-swoop)
   (define-key custom-bindings-map (kbd "M-I")     'helm-multi-swoop-all)
 
@@ -1024,30 +1404,43 @@
   (define-key custom-bindings-map (kbd "C-c t")
     (lambda () (interactive) (org-agenda nil "n")))
   #+END_SRC
-** Bindings for functions defined [[sec:defuns][above]].
+
+** Bindings for extra plugins
 
    #+BEGIN_SRC emacs-lisp
-  (define-key global-map          (kbd "M-p")     'jump-to-previous-like-this)
-  (define-key global-map          (kbd "M-n")     'jump-to-next-like-this)
-  (define-key custom-bindings-map (kbd "M-,")     'jump-to-previous-like-this)
-  (define-key custom-bindings-map (kbd "M-.")     'jump-to-next-like-this)
-  (define-key custom-bindings-map (kbd "C-c .")   (cycle-themes))
-  (define-key custom-bindings-map (kbd "C-x k")   'kill-this-buffer-unless-scratch)
-  (define-key custom-bindings-map (kbd "C-c C-0") 'global-scale-default)
-  (define-key custom-bindings-map (kbd "C-c C-=") 'global-scale-up)
-  (define-key custom-bindings-map (kbd "C-c C-+") 'global-scale-up)
-  (define-key custom-bindings-map (kbd "C-c C--") 'global-scale-down)
-  (define-key custom-bindings-map (kbd "C-x t")   'toggle-shell)
-  (define-key custom-bindings-map (kbd "C-c j")   'cycle-spacing-delete-newlines)
-  (define-key custom-bindings-map (kbd "C-c d")   'duplicate-thing)
-  (define-key custom-bindings-map (kbd "<C-tab>") 'tidy)
-  (define-key custom-bindings-map (kbd "C-c C-q")
-    '(lambda ()
-       (interactive)
-       (focus-mode 1)
-       (focus-read-only-mode 1)))
-  (with-eval-after-load 'org
-    (define-key org-mode-map (kbd "C-'") 'org-sync-pdf))
+   (define-key custom-bindings-map (kbd "<M-S-down>")  'move-text-down)
+   (define-key custom-bindings-map (kbd "<M-S-up>")  'move-text-up)
+   (define-key custom-bindings-map (kbd "C-D") 'duplicate-thing)
+   (define-key custom-bindings-map (kbd "C-t t") 'yas-expand)
+   (define-key custom-bindings-map (kbd "M-.") (function rtags-find-symbol-at-point))
+   (define-key custom-bindings-map (kbd "M-,") (function rtags-find-references-at-point))
+   #+END_SRC
+
+** Bindings for functions defined [[sec:defuns][above]].
+   
+   #+BEGIN_SRC emacs-lisp
+   ;; (define-key global-map          (kbd "M-p")     'jump-to-previous-like-this)
+   ;; (define-key global-map          (kbd "M-n")     'jump-to-next-like-this)
+   (define-key global-map          (kbd "C-c b")   'switch-to-previous-buffer)
+   ;; (define-key custom-bindings-map (kbd "M-,")     'jump-to-previous-like-this)
+   ;; (define-key custom-bindings-map (kbd "M-.")     'jump-to-next-like-this)
+   (define-key custom-bindings-map (kbd "C-c .")   (cycle-themes))
+   (define-key custom-bindings-map (kbd "C-x k")   'kill-this-buffer-unless-scratch)
+   (define-key custom-bindings-map (kbd "C-c C-0") 'global-scale-default)
+   (define-key custom-bindings-map (kbd "C-c C-=") 'global-scale-up)
+   (define-key custom-bindings-map (kbd "C-c C-+") 'global-scale-up)
+   (define-key custom-bindings-map (kbd "C-c C--") 'global-scale-down)
+   (define-key custom-bindings-map (kbd "C-x t")   'toggle-shell)
+   (define-key custom-bindings-map (kbd "C-c j")   'cycle-spacing-delete-newlines)
+   (define-key custom-bindings-map (kbd "C-c d")   'duplicate-thing)
+   (define-key custom-bindings-map (kbd "<C-tab>") 'tidy)
+   (define-key custom-bindings-map (kbd "C-c C-q")
+     '(lambda ()
+        (interactive)
+        (focus-mode 1)
+        (focus-read-only-mode 1)))
+   (with-eval-after-load 'org
+     (define-key org-mode-map (kbd "C-'") 'org-sync-pdf))
   #+END_SRC
 
    Lastly we need to activate the map by creating and activating the
@@ -1058,5 +1451,5 @@
     "A mode that activates custom-bindings."
     t nil custom-bindings-map)
   #+END_SRC
-
+  
 * License

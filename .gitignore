@@ -12,12 +12,16 @@ projectile*
 .\#*
 
 recentf
+srecode-map.el
+network-security.data
+bookmarks
+helm-adaptive-history
 elpa/
 backups/
 eshell/
 auto-save-list/
-network-security.data
+autosaves/
 irony/
-bookmarks
+
 # Mac specific stuff
 .DS_Store
