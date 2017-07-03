@@ -184,6 +184,7 @@
              json-mode            ; Major mode for editing JSON files
              magit                ; control Git from Emacs
              magit-filenotify     ; Refresh status buffer when git tree changes
+             magit-lfs            ; This plugin is magit integrated frontend for Git LFS
              markdown-mode        ; Emacs Major mode for Markdown-formatted files
              material-theme       ; A Theme based on Google Material Design
              matlab-mode          ; MATLAB integration with Emacs
@@ -1427,7 +1428,7 @@
    (define-key custom-bindings-map (kbd "C-c .")   (cycle-themes))
    (define-key custom-bindings-map (kbd "C-x k")   'kill-this-buffer-unless-scratch)
    (define-key custom-bindings-map (kbd "C-c C-0") 'global-scale-default)
-   (define-key custom-bindings-map (kbd "C-c C-=") 'global-scale-up)
+   ;; (define-key custom-bindings-map (kbd "C-c C-=") 'global-scale-up)
    (define-key custom-bindings-map (kbd "C-c C-+") 'global-scale-up)
    (define-key custom-bindings-map (kbd "C-c C--") 'global-scale-down)
    (define-key custom-bindings-map (kbd "C-x t")   'toggle-shell)
