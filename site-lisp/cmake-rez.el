@@ -1,0 +1,44 @@
+;;; cmake-rez.el  --- configures the cmake-ide to use rez if there is a package.py file in the root of the project.
+
+;; Copyright 2017 Marcus Olofsson.
+
+
+(defcustom cmake-rez-is-active
+  nil
+  "Wheter a this is a rez-package or not"
+  :group 'cmake-rez
+  :type 'booleanp
+  :safe #'booleanp)
+
+(defcustom cmake-rez-packages
+  nil
+  "List of packages that is requested by rez"
+  :group 'cmake-rez
+  :type '(repeat string))
+
+
+(defun cmake-rez--active-var ()
+  "Returns if rez is active in this here."
+  (cmake-rez-active))
+
+(defun cmake-rez-check-active (cmake-root-dir)
+  "Check if the cmake build is using rez to solve dependecies"
+  
+  (if (file-exists-p (expand-file-name "package.py" cmake-root-dir))
+      (setq cmake-rez-is-active t)
+    (setq cmake-rez-is-active nil)))
+
+(defun cmake-rez-get-resolve (cmake-root-dir)
+  "Resolve the dependicies that is required for this project"
+  )
+
+(defun cmake-rez--set-rez-env-variables (cmake-root-dir)
+  "Set the environment variables that rez needs for it to be used."
+  (setenv "REZ_BUILD_PROJECT_NAME" )
+  (setenv "REZ_BUILD_REQUIRES_UNVERSIONED" ))
+  (setenv "REZ_BUILD_PROJECT_VERSION" )
+
+
+
+
+(provide 'cmake-rez)
