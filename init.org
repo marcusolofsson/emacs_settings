@@ -190,6 +190,8 @@
              matlab-mode          ; MATLAB integration with Emacs
              move-text            ; Move current line or region with M-up or M-down.
              multiple-cursors     ; Multiple cursors for Emacs
+             neotree              ; A tree plugin like NerdTree for Vim
+             noaa                 ; This package provides a way to view an NOAA weather.
              olivetti             ; Minor mode for a nice writing environment
              org                  ; Outline-based notes management and organizer
              org-projectile       ; Repository todo management for org-mode
@@ -219,7 +221,7 @@
                       (when (memq window-system '(mac ns))
                         (package-install 'exec-path-from-shell)))))
    #+END_SRC
-
+   
 ** Mac OS X
 
    I run this configuration mostly on Mac OS X, so we need a couple of
@@ -262,8 +264,10 @@
               company-yasnippet))
      (idle-require feature))
 
-   (setq idle-require-idle-delay 5)
+   (setq idle-require-idle-delay 2)
    (idle-require-mode 1)
+   (setq noaa-latitude 59)
+   (setq noaa-longitude 18)
    #+END_SRC
    
 ** Sane defaults
