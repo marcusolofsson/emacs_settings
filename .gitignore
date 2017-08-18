@@ -1,6 +1,7 @@
 # Compiled
 *.elc
-
+*.elc~
+ac-comphist.dat
 # Packaging
 .cask
 

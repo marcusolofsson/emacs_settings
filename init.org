@@ -132,31 +132,38 @@
    (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
    #+END_SRC
 
+
    The configuration assumes that the packages listed below are
    installed. To ensure we install missing packages if they are missing.
 
    #+BEGIN_SRC emacs-lisp
    (let* ((packages
            '(airline-themes       ; Airline theme
+             all-the-icons        ; A library for inserting Developer icons
              auto-compile         ; automatically compile Emacs Lisp libraries
              cider                ; Clojure Interactive Development Environment
              company              ; Modular text completion framework
+             company-ansible      ; Anaconda backend for company-mode
              company-cmake        ; company-mode completion back-end for CMake
              company-flx          ; flx hooks for company
              company-irony        ; irony hooks for company
              company-irony-c-headers; irony-headers hooks for compay
+             company-jedi         ; company-mode completion back-end for Python JEDI
              company-go           ; company-mode backend for Go (using gocode)
              company-rtags        ; RTags backend for company
+             cmake-font-lock      ; Advanced, type aware, highlight support for CMake
              cmake-ide            ; cmake IDE integration
              cmake-mode           ; cmake editing mode
              cuda-mode            ; NVIDIA CUDA editing mode
              define-word          ; display the definition of word at point
+             demangle-mode        ; Automatically demangle C++ symbols
              diminish             ; Diminished modes from modeline
              dired+               ; Extensions to Dired.
              dired-efap           ; Edit Filename At Point in a dired buffer
              duplicate-thing      ; Duplicate current line & selection
              drag-stuff           ; Drag stuff around in Emacs
              elpy                 ; On-the-fly syntax checking
+             eredis               ; eredis, a Redis client in emacs lisp
              expand-region        ; Increase selected region by semantic units
              f                    ; Modern API for working with files and directories
              flycheck             ; On-the-fly syntax checking
@@ -179,7 +186,6 @@
              helm-projectile      ; Helm integration for Projectile
              helm-swoop           ; Efficiently hopping squeezed lines
              helm-rtags           ; A front-end for rtags
-             jedi                 ; Python auto-completion for Emacs
              js2-mode             ; Improved JavaScript editing mode
              json-mode            ; Major mode for editing JSON files
              magit                ; control Git from Emacs
@@ -208,6 +214,7 @@
              transpose-frame      ; Transpose windows arrangement in a frame
              try                  ; Try out Emacs packages
              undo-tree            ; Treat undo history as a tree
+             use-package          ; A use-package declaration for simplifying your .emacs
              yasnippet            ; Yet another snippet extension for Emacs.
              yaml-mode            ; Major mode for editing YAML files
              ))                
@@ -218,7 +225,7 @@
                       (package-refresh-contents)
                       (mapcar 'package-install packages)
                         ;; This package is only relevant for Mac OS X.
-                      (when (memq window-system '(mac ns))
+                      (if (eq system-type 'darwin)
                         (package-install 'exec-path-from-shell)))))
    #+END_SRC
    
@@ -232,7 +239,7 @@
    =Command=-key as the =Meta=-key.
 
    #+BEGIN_SRC emacs-lisp
-   (when (memq window-system '(mac ns))
+   (when (eq system-type 'darwin)
      (setq ns-pop-up-frames nil
            mac-option-modifier nil
            mac-command-modifier 'meta
@@ -254,7 +261,6 @@
 
    (dolist (feature
             '(auto-compile             ; auto-compile .el files
-              jedi                     ; auto-completion for python
               matlab                   ; matlab-mode
               ob-matlab                ; org-babel matlab
               ox-latex                 ; the latex-exporter (from org)
@@ -1294,7 +1300,7 @@
              (lambda ()
                (auto-fill-mode 0)
                (visual-line-mode 1)
-               (ispell-change-dictionary "norsk")
+               (ispell-change-dictionary "english")
                (local-set-key (kbd "C-c b") 'insert-markdown-inline-math-block)) t)
    #+END_SRC
 
@@ -1304,16 +1310,17 @@
    dependent on some python programs as well, so make sure you follow the
    instructions from the site.
 
-   ;;#+BEGIN_SRC emacs-lisp
-   ;; (setq jedi:server-command
-   ;;       (cons "python3" (cdr jedi:server-command))
-   ;;       python-shell-interpreter "python3")
-   ;; (add-hook 'python-mode-hook 'jedi:setup)
-   ;; (setq jedi:complete-on-dot t)
-   ;; (add-hook 'python-mode-hook 'jedi:ac-setup)
-   ;;#+END_SRC
-
-   
+   #+BEGIN_SRC emacs-lisp
+   (use-package flycheck
+                :ensure t
+                :init
+                (global-flycheck-mode t))
+   (use-package company-jedi
+                :ensure t
+                :init
+                (add-hook 'python-mode-hook 'jedi:setup)
+                (add-hook 'python-mode-hook '(add-to-list 'company-backends 'company-jedi))
+   #+END_SRC
 
 ** Haskell
 
