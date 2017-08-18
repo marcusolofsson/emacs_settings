@@ -429,7 +429,7 @@
 
    #+BEGIN_SRC emacs-lisp
    (cond ((member "Source Code Pro" (font-family-list))
-          (set-face-attribute 'default nil :font "Source Code Pro-13"))
+          (set-face-attribute 'default nil :font "Source Code Pro-11"))
          ((member "Inconsolata" (font-family-list))
           (set-face-attribute 'default nil :font "Inconsolata-14")))
    #+END_SRC
@@ -967,7 +967,7 @@
           (define-key map (kbd "C-=") 'global-scale-up)
           (define-key map (kbd "C-+") 'global-scale-up)
           (define-key map (kbd "C--") 'global-scale-down)
-          (define-key map (kbd "C-0") 'global-scale-default) map))))
+          (define-key map (kbd "Cu 0") 'global-scale-default) map))))
    #+END_SRC
    
 * Mode specific
