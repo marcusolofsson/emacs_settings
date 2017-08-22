@@ -689,13 +689,6 @@
        (local-set-key (kbd "C-c l") (cycle-languages))))
    #+END_SRC
 
-   #+BEGIN_SRC emacs-lisp
-   (defadvice flyspell-prog-mode (before check nil activate)
-     "Turns on flyspell only if a spell-checking tool is installed."
-     (when (executable-find ispell-program-name)
-       (local-set-key (kbd "C-c l") (cycle-languages))))
-   #+END_SRC
-
 ** Org
    I use =org-agenda= along with =org-capture= for appointments and such.
 
@@ -819,6 +812,22 @@
      (interactive)
      (jump-to-symbol-internal))
    #+END_SRC
+
+   Getting and setting the time and timestamp is something that is useful most
+   of the time... This can be used in more than one occasion.
+
+   #+BEGIN_SRC emacs-lisp
+   (defun date (arg)
+     (interactive "P")
+     (insert (if arg
+                 (format-time-string "%d.%m.%Y")
+               (format-time-string "%Y-%m-%d"))))
+
+   (defun timestamp ()
+     (interactive)
+     (insert (format-time-string "%Y-%m-%dT%H:%M:%S"))) 
+   #+END_SRC
+
 
 
    Switching back and forth between two buffers is something that I can find
