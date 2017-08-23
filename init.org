@@ -1311,6 +1311,9 @@
    instructions from the site.
 
    #+BEGIN_SRC emacs-lisp
+   (defun fps/python-mode-hook ()
+     (add-to-list 'company-backends 'company-jedi))
+
    (use-package flycheck
                 :ensure t
                 :init
@@ -1318,8 +1321,7 @@
    (use-package company-jedi
                 :ensure t
                 :init
-                (add-hook 'python-mode-hook 'jedi:setup)
-                (add-hook 'python-mode-hook '(add-to-list 'company-backends 'company-jedi))
+                (add-hook 'python-mode-hook 'fps/python-mode-hook))
    #+END_SRC
 
 ** Haskell
