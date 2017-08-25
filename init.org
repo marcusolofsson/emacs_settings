@@ -259,6 +259,9 @@
    #+BEGIN_SRC emacs-lisp
    (require 'idle-require)             ; Need in order to use idle-require
 
+   (use-package yasnippet
+                :ensure t)
+
    (dolist (feature
             '(auto-compile             ; auto-compile .el files
               matlab                   ; matlab-mode
@@ -267,14 +270,12 @@
               ox-md                    ; Markdown exporter (from org)
               recentf                  ; recently opened files
               tex-mode                 ; TeX, LaTeX, and SliTeX mode commands
-              company-yasnippet))
+             ))
      (idle-require feature))
 
    (setq idle-require-idle-delay 2)
    (idle-require-mode 1)
-   (setq noaa-latitude 59)
-   (setq noaa-longitude 18)
-   #+END_SRC
+    #+END_SRC
    
 ** Sane defaults
 
@@ -462,6 +463,7 @@
    (safe-diminish "flyspell" 'flyspell-mode)
    (safe-diminish "helm-mode" 'helm-mode)
    (safe-diminish "projectile" 'projectile-mode)
+   (safe-diminish "golden-ratio" 'golden-ratio-mode)
    (safe-diminish "paredit" 'paredit-mode "()")
    #+END_SRC
 
@@ -728,7 +730,7 @@
 ** RTags
 
    Rtags is a great code static analyzer (sorta)
-   it gives many features to the c++ tool-kit
+   it gives many features to the c++ toolkit
 
    #+BEGIN_SRC emacs-lisp
    (require 'irony)
@@ -1142,26 +1144,26 @@
    I'm using irony to help me when coding in c++ 
 
    #+BEGIN_SRC emacs-lisp
-   (add-hook 'c++-mode-hook 'irony-mode)
-   (add-hook 'c-mode-hook 'irony-mode)
-   (add-hook 'objc-mode-hook 'irony-mode)
+      (add-hook 'c++-mode-hook 'irony-mode)
+      (add-hook 'c-mode-hook 'irony-mode)
+      (add-hook 'objc-mode-hook 'irony-mode)
 
-   (defun c-irony-completion-hook () 
-   (define-key irony-mode-map [remap completion-at-point] 'irony-completion-at-point-async)
-   (define-key irony-mode-map [remap complete-symbol] 'irony-completion-at-point-async))
+      (defun c-irony-completion-hook () 
+      (define-key irony-mode-map [remap completion-at-point] 'irony-completion-at-point-async)
+      (define-key irony-mode-map [remap complete-symbol] 'irony-completion-at-point-async))
 
-   (add-hook 'irony-mode-hook 'c-irony-completion-hook)
-   (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-   (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
+      (add-hook 'irony-mode-hook 'c-irony-completion-hook)
+      (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+      (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
 
-(setq company-backends (delete 'company-semantic company-backends))
-(eval-after-load 'company
-   '(add-to-list
-     'company-backends '(company-irony-c-headers company-irony)))
+   (setq company-backends (delete 'company-semantic company-backends))
+   (eval-after-load 'company
+      '(add-to-list
+        'company-backends '(company-irony-c-headers company-irony)))
 
-(setq company-idle-delay 0)
-(add-hook 'c++-mode-hook 'flycheck-mode)
-(add-hook 'c-mode-hook 'flycheck-mode)
+   (setq company-idle-delay 0)
+   (add-hook 'c++-mode-hook 'flycheck-mode)
+   (add-hook 'c-mode-hook 'flycheck-mode)
    #+END_SRC
 
 ** CMake
@@ -1315,20 +1317,19 @@
 
 ** Python
 
+
    [[http://tkf.github.io/emacs-jedi/released/][Jedi]] offers very nice auto completion for =python-mode=. Mind that it is
    dependent on some python programs as well, so make sure you follow the
    instructions from the site.
 
    #+BEGIN_SRC emacs-lisp
-   (use-package flycheck
-                :ensure t
-                :init
-                (global-flycheck-mode t))
+   (defun maol/python-load-hook ()
+     (add-to-list 'company-backends 'company-jedi))
+
    (use-package company-jedi
                 :ensure t
                 :init
-                (add-hook 'python-mode-hook 'jedi:setup)
-                (add-hook 'python-mode-hook '(add-to-list 'company-backends 'company-jedi))
+                (add-hook 'python-mode-hook 'maol/python-load-hook))
    #+END_SRC
 
 ** Haskell
