@@ -1426,6 +1426,7 @@
   (define-key custom-bindings-map (kbd "C-c <right>") 'windmove-right)
   (define-key custom-bindings-map (kbd "C-c t")
     (lambda () (interactive) (org-agenda nil "n")))
+  (global-set-key [f10] 'toggle-menu-bar-mode-from-frame)
   #+END_SRC
 
 ** Bindings for extra plugins
