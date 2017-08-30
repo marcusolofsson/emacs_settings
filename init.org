@@ -275,6 +275,11 @@
    (setq noaa-latitude 59)
    (setq noaa-longitude 18)
    #+END_SRC
+
+   #+BEGIN_SRC emacs-lisp
+
+   #+END_SRC
+
    
 ** Sane defaults
 
@@ -983,10 +988,14 @@
        (set-face-attribute 'default (selected-frame) :height arg)
        (set-transient-map
         (let ((map (make-sparse-keymap)))
-          (define-key map (kbd "C-=") 'global-scale-up)
-          (define-key map (kbd "C-+") 'global-scale-up)
-          (define-key map (kbd "C--") 'global-scale-down)
-          (define-key map (kbd "Cu 0") 'global-scale-default) map))))
+          (global-set-key "emacs-C-=" 'global-scale-default)
+          (global-set-key "emacs-C-+" 'global-scale-up)
+          (global-set-key "emacs-C--" 'global-scale-down)
+          ;; (define-key map (kbd "C-=") 'global-scale-up)
+          ;; (define-key map (kbd "C-+") 'global-scale-up)
+          ;; (define-key map (kbd "C--") 'global-scale-down)
+          ;; (define-key map (kbd "C-0") 'global-scale-default)
+          map))))
    #+END_SRC
    
 * Mode specific
@@ -1131,7 +1140,7 @@
      (setq c-tab-always-indent t)
      (setq c-basic-offset 4)
      (setq c-indent-level 4)
-     (setq tab-stop-list '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60))
+     (setq tab-stop-list '(2 4 8 12 16 20 24 28 32 36 40 44 48 52 56 60))
      (setq tab-width 4)
      (setq indent-tabs-mode nil))
 
@@ -1147,21 +1156,21 @@
    (add-hook 'objc-mode-hook 'irony-mode)
 
    (defun c-irony-completion-hook () 
-   (define-key irony-mode-map [remap completion-at-point] 'irony-completion-at-point-async)
-   (define-key irony-mode-map [remap complete-symbol] 'irony-completion-at-point-async))
+     (define-key irony-mode-map [remap completion-at-point] 'irony-completion-at-point-async)
+     (define-key irony-mode-map [remap complete-symbol] 'irony-completion-at-point-async))
 
    (add-hook 'irony-mode-hook 'c-irony-completion-hook)
    (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
    (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
 
-(setq company-backends (delete 'company-semantic company-backends))
-(eval-after-load 'company
-   '(add-to-list
-     'company-backends '(company-irony-c-headers company-irony)))
+   (setq company-backends (delete 'company-semantic company-backends))
+   (eval-after-load 'company
+     '(add-to-list
+       'company-backends 'company-irony))
 
-(setq company-idle-delay 0)
-(add-hook 'c++-mode-hook 'flycheck-mode)
-(add-hook 'c-mode-hook 'flycheck-mode)
+   (setq company-idle-delay 0)
+   (add-hook 'c++-mode-hook 'flycheck-mode)
+   (add-hook 'c-mode-hook 'flycheck-mode)
    #+END_SRC
 
 ** CMake
@@ -1177,6 +1186,7 @@
    (autoload 'cmake-font-lock-activate "cmake-font-lock" nil t)
    (add-hook 'cmake-mode-hook 'cmake-font-lock-activate)
    #+END_SRC
+
 ** YAML
 
    Not all yaml extensions listens to the correct mode. So we need to tell

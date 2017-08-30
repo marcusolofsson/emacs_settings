@@ -11,7 +11,10 @@ projectile*
 # temp emacs files
 \#*\#
 .\#*
+%backup%~
 
+.mc-lists.el
+tramp
 recentf
 srecode-map.el
 network-security.data
