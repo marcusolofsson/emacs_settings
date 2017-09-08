@@ -30,3 +30,4 @@ games/
 # Mac specific stuff
 .DS_Store
 .python-environments
+session*
