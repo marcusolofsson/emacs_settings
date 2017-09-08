@@ -1,4 +1,4 @@
-;;; cmake-rez.el  --- configures the cmake-ide to use rez if there is a package.py file in the root of the project.
+;; cmake-rez.el  --- configures the cmake-ide to use rez if there is a package.py file in the root of the project.
 ;; asdf
 
 ;;; Commentary: asdf
@@ -6,7 +6,7 @@
 
 ;;; Copyright 2017 Marcus Olofsson.
 
-(require "asdf")
+(require 'eshell)
 
 
 (defcustom cmake-rez-is-active
@@ -46,8 +46,8 @@
   
 
 (defun cmake-rez--get-cmake-vars ()
-  
-  )
+  "Return the cmake arguments for the cmake run."
+  eshell-command-result (concat "python " (concat user-emacs-directory "/site-lisp/rez-resolve.py")))
 
 
 (provide 'cmake-rez)

@@ -144,6 +144,7 @@ def build_information(working_dir):
 def main():
     package_root = rez_root()
     # clion_workspace_file = clion_workspace()
+    print "asdf"
     if not package_root:
         return 1
 

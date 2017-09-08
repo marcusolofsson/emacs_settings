@@ -20,12 +20,13 @@ srecode-map.el
 network-security.data
 bookmarks
 helm-adaptive-history
-elpa/
-backups/
-eshell/
+elpa
+backups
+eshell
 auto-save-list/
 autosaves/
-irony/
+irony
+snippets
 games/
 # Mac specific stuff
 .DS_Store
