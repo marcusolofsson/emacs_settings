@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: ILP Close Guards
+# key: endguard
+# --
+#endif // ${1:`(upcase (car (last (split-string (projectile-project-name)))))`}__${2:`(replace-regexp-in-string "\\." "_" (upcase (car (last (split-string (buffer-name))))) t)`}

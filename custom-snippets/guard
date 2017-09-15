@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: ILP Iport Guard
+# key: guard
+# --
+#ifndef ${1:`(upcase (car (last (split-string (projectile-project-name)))))`}__${2:`(replace-regexp-in-string "\\." "_" (upcase (car (last (split-string (buffer-name))))) t)`}
+#define $1__$2
+
