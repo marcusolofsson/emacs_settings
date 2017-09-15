@@ -47,7 +47,7 @@
 
 (defun cmake-rez--get-cmake-vars ()
   "Return the cmake arguments for the cmake run."
-  eshell-command-result (concat "python " (concat user-emacs-directory "/site-lisp/rez-resolve.py")))
+  eshell-command-result (concat "python " (concat user-emacs-directory "/site-lisp/rez-resolve_cmake.py")))
 
 
 (provide 'cmake-rez)

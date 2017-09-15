@@ -2,9 +2,10 @@
 import os
 import sys
 if os.environ.get("REZ_USED"):
+    print "using Rez"
     import rez
 else:
-    sys.path.append("/data/rez/install/2.13.0/lib/python2.7/site-packages/rez-2.13.0-py2.7.egg")
+    sys.path.append("/opt/rez_packages/rez/2.12.0/python-2.7")
     import rez
 import shutil
 from datetime import datetime
