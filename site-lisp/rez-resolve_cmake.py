@@ -99,6 +99,7 @@ def rez_root():
         return os.getcwd()
     return None
 
+
 def clion_workspace():
     """
     Check if current dir is a valid clion root.
@@ -107,6 +108,7 @@ def clion_workspace():
     if os.path.exists(root):
         return root
     return None
+
 
 def build_information(working_dir):
     """
@@ -142,20 +144,22 @@ def build_information(working_dir):
             build_path=builder.build_path)
     return buildsys, context
 
+
 def main():
     package_root = rez_root()
     # clion_workspace_file = clion_workspace()
-    print "asdf"
+    # print "asdf"
     if not package_root:
         return 1
 
     buildsys, context = build_information(package_root)
 
     # clion = ClionWorkspace(clion_workspace_file)
-    print buildsys
-    print ' '.join(x.name for x in context.requested_packages(True))
+    # print buildsys
+    # print ' '.join(x.name for x in context.requested_packages(True))
     module_paths = context.get_environ()['CMAKE_MODULE_PATH']+";"+os.path.join(os.path.join(os.path.dirname(inspect.getfile(buildsys.__class__))),"cmake_files")
-    print "module paths:\n " + module_paths
+    print  module_paths
+    return 1
     # clion.CMakeSettings = " ".join(buildsys.settings.cmake_args+["-DCMAKE_MODULE_PATH="+module_paths])
     CMakeSettings = " ".join(buildsys.settings.cmake_args+["-DCMAKE_MODULE_PATH="+module_paths])
     env = context.get_environ()

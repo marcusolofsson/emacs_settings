@@ -267,6 +267,15 @@
      :ensure t
      :init
      (add-hook 'after-init-hook 'company-statistics-mode))
+   (use-package flycheck
+     :ensure t
+     :init
+     (add-hook 'after-init-hook #'global-flycheck-mode))
+
+   (use-package origami
+     :ensure t
+     :init
+     (add-hook 'after-init-hook 'global-origami-mode))
 
    (use-package origami
      :ensure t
@@ -284,7 +293,7 @@
               ob-matlab                ; org-babel matlab
               ox-latex                 ; the latex-exporter (from org)
               ox-md                    ; Markdown exporter (from org)
-              recentf                  ; recently opened files
+              ;; recentf                  ; recently opened files
               tex-mode                 ; TeX, LaTeX, and SliTeX mode commands
               ))
      (idle-require feature))
@@ -857,13 +866,24 @@
      (insert (format-time-string "%Y-%m-%dT%H:%M:%S"))) 
    #+END_SRC
 
+   Simply closing a window and killing the buffer is something that I want todo alot of times.
+
+   #+BEGIN_SRC emacs-lisp
+   (defun fps/kill-buffer-and-window-unless-scratch ()
+     (interactive)
+     (if (not (string= (buffer-name) "*scratch*"))
+         (kill-buffer-and-window)
+       (delete-region (point-min) (point-max))
+       (switch-to-buffer (other-buffer))
+       (bury-buffer "*scratch*")))
+   #+END_SRC
 
 
    Switching back and forth between two buffers is something that I can find
    my self do quite a lot. So to speed that up there was a need for a quick 
    swap thing.
 
-   #+BEGIN_SRC emacs-lisp
+   ,#+BEGIN_SRC emacs-lisp
    (defun switch-to-previous-buffer ()
      "Switch to previously open buffer.Repeated invocations toggle between the two most recently open buffers."
      (interactive)
@@ -1477,6 +1497,7 @@
   (define-key custom-bindings-map (kbd "C-c <down>")  'windmove-down)
   (define-key custom-bindings-map (kbd "C-c <left>")  'windmove-left)
   (define-key custom-bindings-map (kbd "C-c <right>") 'windmove-right)
+  (define-key custom-bindings-map (kbd "C-x C-k")     'fps/kill-buffer-and-window-unless-scratch)
   (global-set-key [f10] 'toggle-menu-bar-mode-from-frame)
   (define-key custom-bindings-map (kbd "C-c t")
     (lambda () (interactive) (org-agenda nil "n")))
