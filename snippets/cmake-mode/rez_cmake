@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: Rez cmake build import file template
+# key: rez-cmake
+# --
+
+set(`(nth 0 (s-split "\\." (buffer-name)))`_INCLUDE_DIRS $ENV{REZ_`(upcase (nth 0 (s-split "\\." (buffer-name))))`_ROOT}/include)
+set(`(nth 0 (s-split "\\." (buffer-name)))`_LIBRARY_DIRS $ENV{REZ_`(upcase (nth 0 (s-split "\\." (buffer-name))))`_ROOT}/lib)
+set(`(nth 0 (s-split "\\." (buffer-name)))`_LIBRARIES `(nth 0 (s-split "\\." (buffer-name)))` )
+
+if(`(nth 0 (s-split "\\." (buffer-name)))`_STATIC)
+  set(`(nth 0 (s-split "\\." (buffer-name)))`_LIBRARIES \${`(nth 0 (s-split "\\." (buffer-name)))`_LIBRARY_DIRS}/lib`(nth 0 (s-split "\\." (buffer-name)))`.a)
+endif()

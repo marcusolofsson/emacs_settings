@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: rez-package template
+# key: rez-template
+# --
+
+name = "`(nth 0 (last (s-split "/" (directory-file-name (file-name-directory (buffer-name))))))`"
+
+version = ""
+
+variants = [
+    ['platform-linux', ],
+]
+
+build_requires = [
+    "cmake-3",
+]
+
+
+def commands():
+    env.PATH.append("{root}/bin")
+    env.LD_LIBRARY_PATH.append("{root}/lib")
+    env.CMAKE_MODULE_PATH.append("{root}/cmake")

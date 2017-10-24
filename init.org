@@ -128,8 +128,6 @@
            ("melpa" . "https://melpa.org/packages/")
            ("melpa-stable" . "https://stable.melpa.org/packages/")
            ("marmalade" . "https://marmalade-repo.org/packages/")))
-
-   (add-to-list 'package-pinned-packages '(cider . "melpa-stable") t)
    #+END_SRC
 
 
@@ -137,10 +135,13 @@
    installed. To ensure we install missing packages if they are missing.
 
    #+BEGIN_SRC emacs-lisp
-   (let* ((packages
+   (let* ((package--builtins nil)
+          (packages
            '(airline-themes          ; Airline theme
              all-the-icons           ; A library for inserting Developer icons
+             ansible                 ; Ansible minor mode.
              auto-compile            ; automatically compile Emacs Lisp libraries
+             bar-cursor              ; Package used to switch block cursor to a bar.
              cider                   ; Clojure Interactive Development Environment
              company                 ; Modular text completion framework
              company-ansible         ; Anaconda backend for company-mode
@@ -173,7 +174,6 @@
              flycheck-rtags          ; RTags Flycheck integration
              flymake-puppet          ; An Emacs flymake handler for syntax-checking puppet using puppet-lint
              focus                   ; Dim color of text in surrounding sections
-             idle-require            ; load elisp libraries while Emacs is idle
              irony                   ; C/C++ minor mode powered by libclang
              geiser                  ; GNU Emacs and Scheme talk to each other
              git-gutter-fringe       ; Fringe version of git-gutter.el
@@ -201,7 +201,7 @@
              olivetti                ; Minor mode for a nice writing environment
              org                     ; Outline-based notes management and organizer
              org-projectile          ; Repository todo management for org-mode
-             origami                 ; Flexible text folding.
+             ;; origami                 ; Flexible text folding.
              paredit                 ; minor mode for editing parentheses
              pdf-tools               ; Emacs support library for PDF files
              powerline               ; Rewrite of powerline
@@ -217,17 +217,16 @@
              use-package             ; A use-package declaration for simplifying your .emacs
              yasnippet               ; Yet another snippet extension for Emacs.
              yaml-mode               ; Major mode for editing YAML files
-
-             ;; Remove all packages already installed
-             (packages (remove-if 'package-installed-p packages))
-             (when packages
-               (ignore-errors 
-                 (package-refresh-contents)
-                 (mapcar 'package-install packages)
-                 ;; This package is only relevant for Mac OS X.
-                 (if (eq system-type 'darwin)
-                     (package-install 'exec-path-from-shell)))))))
-     )
+             which-key)))         ; Display available keybindings in popup
+     (ignore-errors ;; This package is only relevant for Mac OS X.
+          (when (memq window-system '(mac ns))
+            (push 'exec-path-from-shell packages)
+            (push 'reveal-in-osx-finder packages))
+          (let ((packages (remove-if 'package-installed-p packages)))
+            (when packages
+              ;; Install uninstalled packages
+              (package-refresh-contents)
+              (mapc 'package-install packages)))))
    #+END_SRC
    
 ** Mac OS X
@@ -258,7 +257,12 @@
    but is not a high priority.
 
    #+BEGIN_SRC emacs-lisp
-   (require 'idle-require)             ; Need in order to use idle-require
+   ;; (require 'idle-require)             ; Need in order to use idle-require
+
+   (use-package bar-cursor
+     :ensure t
+     :init
+     (bar-cursor-mode 1))
 
    (use-package yasnippet
      :ensure t)
@@ -272,34 +276,20 @@
      :init
      (add-hook 'after-init-hook #'global-flycheck-mode))
 
-   (use-package origami
-     :ensure t
-     :init
-     (add-hook 'after-init-hook 'global-origami-mode))
+   ;; (use-package origami
+   ;;   :ensure t
+   ;;   :init
+   ;;   (add-hook 'after-init-hook 'global-origami-mode))
 
-   (use-package origami
-     :ensure t
-     :init
-     (global-origami-mode t))
+   ;; (use-package origami
+   ;;   :ensure t
+   ;;   :init
+   ;;   (global-origami-mode t))
 
    (use-package neotree
      :ensure t)
    ;; :config
    ;; (setq projectile-switch-project-action 'neotree-projectile-action))
-
-   (dolist (feature
-            '(auto-compile             ; auto-compile .el files
-              matlab                   ; matlab-mode
-              ob-matlab                ; org-babel matlab
-              ox-latex                 ; the latex-exporter (from org)
-              ox-md                    ; Markdown exporter (from org)
-              ;; recentf                  ; recently opened files
-              tex-mode                 ; TeX, LaTeX, and SliTeX mode commands
-              ))
-     (idle-require feature))
-
-   (setq idle-require-idle-delay 2)
-   (idle-require-mode 1)
     #+END_SRC
    
 ** Sane defaults
@@ -883,7 +873,7 @@
    my self do quite a lot. So to speed that up there was a need for a quick 
    swap thing.
 
-   ,#+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
    (defun switch-to-previous-buffer ()
      "Switch to previously open buffer.Repeated invocations toggle between the two most recently open buffers."
      (interactive)
@@ -1520,13 +1510,13 @@
    #+BEGIN_SRC emacs-lisp
    ;; (define-key global-map          (kbd "M-p")     'jump-to-previous-like-this)
    ;; (define-key global-map          (kbd "M-n")     'jump-to-next-like-this)
-   (define-key global-map          (kbd "C-c b")   'switch-to-previous-buffer)
    ;; (define-key custom-bindings-map (kbd "M-,")     'jump-to-previous-like-this)
    ;; (define-key custom-bindings-map (kbd "M-.")     'jump-to-next-like-this)
+   ;; (define-key custom-bindings-map (kbd "C-c C-=") 'global-scale-up)
+   (define-key global-map          (kbd "C-c b")   'switch-to-previous-buffer)
    (define-key custom-bindings-map (kbd "C-c .")   (cycle-themes))
    (define-key custom-bindings-map (kbd "C-x k")   'kill-this-buffer-unless-scratch)
    (define-key custom-bindings-map (kbd "C-c C-0") 'global-scale-default)
-   ;; (define-key custom-bindings-map (kbd "C-c C-=") 'global-scale-up)
    (define-key custom-bindings-map (kbd "C-c C-+") 'global-scale-up)
    (define-key custom-bindings-map (kbd "C-c C--") 'global-scale-down)
    (define-key custom-bindings-map (kbd "C-x t")   'toggle-shell)
