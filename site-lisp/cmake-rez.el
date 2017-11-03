@@ -45,9 +45,9 @@
   (setenv "REZ_BUILD_PROJECT_VERSION" ))
   
 
-(defun cmake-rez--get-cmake-vars ()
+(defun cmake-rez--get-cmake-vars (cmake-root-dir)
   "Return the cmake arguments for the cmake run."
-  eshell-command-result (concat "python " (concat user-emacs-directory "/site-lisp/rez-resolve_cmake.py")))
+  (eshell-command-result (concat "python " (concat user-emacs-directory "/site-lisp/rez-resolve_cmake.py " cmake-root-dir))))
 
 
 (provide 'cmake-rez)

@@ -130,7 +130,6 @@
            ("marmalade" . "https://marmalade-repo.org/packages/")))
    #+END_SRC
 
-
    The configuration assumes that the packages listed below are
    installed. To ensure we install missing packages if they are missing.
 
@@ -141,7 +140,6 @@
              all-the-icons           ; A library for inserting Developer icons
              ansible                 ; Ansible minor mode.
              auto-compile            ; automatically compile Emacs Lisp libraries
-             bar-cursor              ; Package used to switch block cursor to a bar.
              cider                   ; Clojure Interactive Development Environment
              company                 ; Modular text completion framework
              company-ansible         ; Anaconda backend for company-mode
@@ -154,7 +152,6 @@
              company-rtags           ; RTags backend for company
              company-statistics      ; Sort candidates using completion history.
              cmake-font-lock         ; Advanced, type aware, highlight support for CMake
-             cmake-ide               ; cmake IDE integration
              cmake-mode              ; cmake editing mode
              cuda-mode               ; NVIDIA CUDA editing mode
              define-word             ; display the definition of word at point
@@ -257,12 +254,6 @@
    but is not a high priority.
 
    #+BEGIN_SRC emacs-lisp
-   ;; (require 'idle-require)             ; Need in order to use idle-require
-
-   (use-package bar-cursor
-     :ensure t
-     :init
-     (bar-cursor-mode 1))
 
    (use-package yasnippet
      :ensure t)
@@ -337,6 +328,8 @@
              (append
               (let ((load-path (copy-sequence load-path)))
                 (normal-top-level-add-subdirs-to-load-path)) load-path))))
+
+   (add-to-list 'load-path (concat user-emacs-directory "site-lisp"))
    #+END_SRC
 
    Answering /yes/ and /no/ to each question from Emacs can be tedious, a
@@ -775,7 +768,10 @@
    current project and feed it to rtags ans such things.
 
    #+BEGIN_SRC emacs-lisp
-   (cmake-ide-setup)
+   (use-package cmake-ide
+     :ensure t
+     :config
+     (cmake-ide-setup))
    #+END_SRC
 
 ** Yasnippet
