@@ -5,7 +5,10 @@ if os.environ.get("REZ_USED"):
     print "using Rez"
     import rez
 else:
-    sys.path.append("/opt/rez_packages/rez/2.12.0/python-2.7")
+    if os.path.exists("/opt/rez_packages"):
+        sys.path.append("/opt/rez_packages/rez/2.12.0/python-2.7")
+    else:
+        sys.path.append("/home/marcus/packages/rez/2.13.0/platform-linux/arch-64bit/os-Fedora-25")
     import rez
 import shutil
 from datetime import datetime
@@ -91,12 +94,16 @@ class ClionWorkspace(object):
         self._dom.writexml(open(self._workspace_file, 'wb'))
 
 
-def rez_root():
+def rez_root(path=None):
     """
     Check if current dir is a valid package.
     """
-    if os.path.exists(os.path.join(os.getcwd(), "package.py")):
-        return os.getcwd()
+    if not path:
+        if os.path.exists(os.path.join(os.getcwd(), "package.py")):
+            return os.getcwd()
+        else:
+            if os.path.exists(os.join(path, "package.py")):
+                return path
     return None
 
 
@@ -145,11 +152,15 @@ def build_information(working_dir):
     return buildsys, context
 
 
-def main():
-    package_root = rez_root()
-    # clion_workspace_file = clion_workspace()
+def main(args):
+    if args:
+        package_root = rez_root(args[0])
+    else:
+        package_root = rez_root()
+        # clion_workspace_file = clion_workspace()
     # print "asdf"
     if not package_root:
+        print "not package root: {}".format(os.getcwd())
         return 1
 
     buildsys, context = build_information(package_root)
@@ -175,4 +186,4 @@ def main():
     # clion.write()
 
 if __name__ == '__main__':
-    sys.exit(int(main() or 0))
+    sys.exit(int(main(sys.argv[1:]) or 0))
