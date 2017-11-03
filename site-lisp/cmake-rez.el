@@ -1,7 +1,6 @@
-;; cmake-rez.el  --- configures the cmake-ide to use rez if there is a package.py file in the root of the project.
+;;; cmake-rez.el  --- configures the cmake-ide to use rez if there is a package.py file in the root of the project.
+;;; Commentary:
 ;; asdf
-
-;;; Commentary: asdf
 ;; asdfasdf asdfasdf
 
 ;;; Copyright 2017 Marcus Olofsson.
@@ -21,6 +20,12 @@
   "List of packages that is requested by rez."
   :group 'cmake-rez
   :type '(repeat string))
+
+(defcustom cmake-rez-module-paths
+  nil
+  "The modules that rez supplies."
+  :group 'cmake-rez
+  'type '(repeat string))
 
 
 (defun cmake-rez--active-var ()
