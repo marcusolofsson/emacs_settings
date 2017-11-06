@@ -5,8 +5,10 @@
 
 ;;; Copyright 2017 Marcus Olofsson.
 
-(require 'eshell)
+;;; Code:
 
+(require 'eshell)
+(require 's)
 
 (defcustom cmake-rez-is-active
   nil
@@ -25,7 +27,7 @@
   nil
   "The modules that rez supplies."
   :group 'cmake-rez
-  'type '(repeat string))
+  :type '(repeat string))
 
 
 (defun cmake-rez--active-var ()
@@ -33,7 +35,7 @@
   (cmake-rez-active))
 
 (defun cmake-rez-check-active (cmake-root-dir)
-  "Check if the cmake build is using rez to solve dependecies."
+  "Check if the cmake build is using rez to solve dependecies with CMAKE-ROOT-DIR."
   
   (if (file-exists-p (expand-file-name "package.py" cmake-root-dir))
       (setq cmake-rez-is-active t)
@@ -43,16 +45,22 @@
   "Resolve the dependicies that is required for this project."
   )
 
-(defun cmake-rez--set-rez-env-variables (cmake-root-dir)
+(defun cmake-rez--set-rez-env-variables (project-dir)
   "Set the environment variables that rez needs for it to be used."
   (setenv "REZ_BUILD_PROJECT_NAME" )
   (setenv "REZ_BUILD_REQUIRES_UNVERSIONED" )
   (setenv "REZ_BUILD_PROJECT_VERSION" ))
   
 
-(defun cmake-rez--get-cmake-vars (cmake-root-dir)
-  "Return the cmake arguments for the cmake run."
-  (eshell-command-result (concat "python " (concat user-emacs-directory "/site-lisp/rez-resolve_cmake.py " cmake-root-dir))))
+(defun cmake-rez--get-cmake-vars (project-dir)
+  "Return the cmake arguments for the cmake run from CMAKE-ROOT-DIR."
+  (car (last
+        (s-split "\n"
+                 (s-trim-right
+                  (eshell-command-result
+                   (concat "python "
+                           (concat user-emacs-directory "/site-lisp/rez-resolve_cmake.py " project-dir))))))))
 
 
 (provide 'cmake-rez)
+;;; cmake-rez.el ends here

@@ -2,7 +2,6 @@
 import os
 import sys
 if os.environ.get("REZ_USED"):
-    print "using Rez"
     import rez
 else:
     if os.path.exists("/opt/rez_packages"):
@@ -98,12 +97,13 @@ def rez_root(path=None):
     """
     Check if current dir is a valid package.
     """
-    if not path:
+    if path:
+        path = os.path.abspath(path)
+        if os.path.exists(os.path.join(path, "package.py")):
+            return path
+    else:
         if os.path.exists(os.path.join(os.getcwd(), "package.py")):
             return os.getcwd()
-        else:
-            if os.path.exists(os.join(path, "package.py")):
-                return path
     return None
 
 
@@ -121,7 +121,6 @@ def build_information(working_dir):
     """
     Collect information from the rez build system.
     """
-    working_dir = os.getcwd()
     buildsys_type = None
     buildsys = create_build_system(
         working_dir,
@@ -131,11 +130,13 @@ def build_information(working_dir):
         verbose=False,
         build_args="",
         child_build_args="")
+
     builder = create_build_process(
         "local",
         working_dir,
         build_system="cmake",
         verbose=False)
+
     # Just grab the first variant for now.
     variant = None
     for v in builder.package.iter_variants():
@@ -145,10 +146,12 @@ def build_information(working_dir):
     variant_build_path = builder.build_path
     if not os.path.exists(variant_build_path):
         os.makedirs(variant_build_path)
+
     context, rxt_filepath = builder.create_build_context(
             variant=variant,
             build_type=BuildType.local,
             build_path=builder.build_path)
+
     return buildsys, context
 
 
@@ -158,9 +161,8 @@ def main(args):
     else:
         package_root = rez_root()
         # clion_workspace_file = clion_workspace()
-    # print "asdf"
     if not package_root:
-        print "not package root: {}".format(os.getcwd())
+        print "not package root: {}".format(path)
         return 1
 
     buildsys, context = build_information(package_root)
@@ -168,9 +170,14 @@ def main(args):
     # clion = ClionWorkspace(clion_workspace_file)
     # print buildsys
     # print ' '.join(x.name for x in context.requested_packages(True))
-    module_paths = context.get_environ()['CMAKE_MODULE_PATH']+";"+os.path.join(os.path.join(os.path.dirname(inspect.getfile(buildsys.__class__))),"cmake_files")
+    module_paths = context.get_environ()['CMAKE_MODULE_PATH']+";" + \
+    os.path.join(os.path.join(
+        os.path.dirname(
+            inspect.getfile(buildsys.__class__))), "cmake_files")
     print  module_paths
     return 1
+
+
     # clion.CMakeSettings = " ".join(buildsys.settings.cmake_args+["-DCMAKE_MODULE_PATH="+module_paths])
     CMakeSettings = " ".join(buildsys.settings.cmake_args+["-DCMAKE_MODULE_PATH="+module_paths])
     env = context.get_environ()
