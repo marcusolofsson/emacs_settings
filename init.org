@@ -267,15 +267,16 @@
      :init
      (add-hook 'after-init-hook #'global-flycheck-mode))
 
-   ;; (use-package origami
-   ;;   :ensure t
-   ;;   :init
-   ;;   (add-hook 'after-init-hook 'global-origami-mode))
+   (use-package origami
+     :ensure t
+     :init
+     (add-hook 'after-init-hook 'global-origami-mode))
 
-   ;; (use-package origami
-   ;;   :ensure t
-   ;;   :init
-   ;;   (global-origami-mode t))
+     ;; (use-package origami
+     ;;   :ensure t
+     ;;   :init
+     ;;   (global-origami-mode t))
+
 
    (use-package neotree
      :ensure t)
@@ -1499,6 +1500,11 @@
    (define-key custom-bindings-map (kbd "C-t t") 'yas-expand)
    (define-key custom-bindings-map (kbd "M-.") (function rtags-find-symbol-at-point))
    (define-key custom-bindings-map (kbd "M-,") (function rtags-find-references-at-point))
+
+   (define-key origami-mode-map (kbd "C-c o c") 'origami-close-node)
+   (define-key origami-mode-map (kbd "C-c o o") 'origami-open-node)
+   (define-key origami-mode-map (kbd "C-c o C") 'origami-close-all-nodes)
+   (define-key origami-mode-map (kbd "C-c o O") 'origami-open-all-nodes)
    #+END_SRC
 
 ** Bindings for functions defined [[sec:defuns][above]].
