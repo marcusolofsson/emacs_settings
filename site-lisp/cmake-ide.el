@@ -607,8 +607,13 @@ the object file's name just above."
   "Run the CMake process for PROJECT-DIR in CMAKE-DIR."
   (when project-dir
     (let ((default-directory cmake-dir))
+      (cmake-rez-check-active project-dir)
       (cmake-ide--message "Running cmake for src path %s in build path %s" project-dir cmake-dir)
-      (start-process "cmake" "*cmake*" cmake-ide-cmake-command cmake-ide-cmake-opts (concat "-DCMAKE_MODULE_PATH=" (cmake-rez--get-cmake-vars project-dir))  "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON" project-dir))))
+      (cmake-rez--set-rez-env-variables project-dir)
+      (start-process "cmake" "*cmake*" cmake-ide-cmake-command cmake-ide-cmake-opts  "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON" project-dir))))
+      ;; (start-process "cmake" "*cmake*" cmake-ide-cmake-command cmake-ide-cmake-opts (concat "-DCMAKE_MODULE_PATH="
+      ;;                                                                                       (cmake-rez--get-cmake-vars
+      ;;                                                                                        project-dir))  "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON" project-dir))))
 
 
 (defun cmake-ide--get-project-key ()

@@ -47,6 +47,7 @@
 
 (defun cmake-rez--set-rez-env-variables (project-dir)
   "Set the environment variables that rez needs for it to be used."
+  (eshell-command-result (concat "python " (concat user-emacs-directory "/site-lisp/rez-environs.py" project-dir)))
   (setenv "REZ_BUILD_PROJECT_NAME" )
   (setenv "REZ_BUILD_REQUIRES_UNVERSIONED" )
   (setenv "REZ_BUILD_PROJECT_VERSION" ))
@@ -54,6 +55,7 @@
 
 (defun cmake-rez--get-cmake-vars (project-dir)
   "Return the cmake arguments for the cmake run from CMAKE-ROOT-DIR."
+  (setenv "REZ_BUILD_PROJECT_NAME")
   (car (last
         (s-split "\n"
                  (s-trim-right
