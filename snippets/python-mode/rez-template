@@ -12,7 +12,8 @@ variants = [
 ]
 
 build_requires = [
-    "cmake-3",
+    "cmake-3.6.2",
+    "ilp_build_utils",
 ]
 
 

@@ -10,12 +10,14 @@ include(RezRepository)
 include(ExternalProject)
 include(IlpHelpers)
 
+ilp_enable_fpic()
+
 set(`(nth 0 (last (s-split "/" (directory-file-name (file-name-directory (buffer-name))))))`_version \${`(upcase (nth 0 (last (s-split "/" (directory-file-name (file-name-directory (buffer-name)))))))`_VERSION})
 
 rez_set_archive(`(nth 0 (last (s-split "/" (directory-file-name (file-name-directory (buffer-name))))))`_path `(nth 0 (last (s-split "/" (directory-file-name (file-name-directory (buffer-name))))))`/`(nth 0 (last (s-split "/" (directory-file-name (file-name-directory (buffer-name))))))`-\${`(nth 0 (last (s-split "/" (directory-file-name (file-name-directory (buffer-name))))))`_version}.tar.gz github.com/`(nth 0 (last (s-split "/" (directory-file-name (file-name-directory (buffer-name))))))`)
 
 set(make_args VERBOSE=1)
-set(c_flags "\${CMAKE_CXX_FLAGS} -fPIC")
+
 
 if(REZ_BUILD_INSTALL)
   set(install_cmd make install \${make_args})
@@ -27,7 +29,7 @@ ExternalProject_add(
   `(nth 0 (last (s-split "/" (directory-file-name (file-name-directory (buffer-name))))))`
   URL \${`(nth 0 (last (s-split "/" (directory-file-name (file-name-directory (buffer-name))))))`_path}
   PREFIX \${`(nth 0 (last (s-split "/" (directory-file-name (file-name-directory (buffer-name))))))`_version}
-  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=\${CMAKE_INSTALL_PREFIX} -DCMAKE_CXX_FLAGS=\${c_flags}
+  CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=\${CMAKE_INSTALL_PREFIX}
   BUILD_COMMAND make \${make_args}
   INSTALL_COMMAND "\${install_cmd}")
 

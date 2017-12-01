@@ -4,7 +4,6 @@
 
 ;; Author:  Atila Neves <atila.neves@gmail.com>
 ;; Version: 0.6
-;; Package-Version: 20170804.430
 ;; Package-Requires: ((emacs "24.4") (cl-lib "0.5") (seq "1.11") (levenshtein "0") (s "1.11.0"))
 ;; Keywords: languages
 ;; URL: http://github.com/atilaneves/cmake-ide
@@ -46,7 +45,6 @@
 (require 'cl-lib)
 (require 'seq)
 (require 's)
-(require 'cmake-rez)
 
 (declare-function rtags-call-rc "rtags")
 
@@ -143,6 +141,13 @@
 (defcustom cmake-ide-header-search-first-including
   t
   "Whether or not to search for the first source file to include a header when setting flags for them."
+  :group 'cmake-ide
+  :type 'booleanp
+  :safe #'booleanp)
+
+(defcustom cmake-ide-header-no-flags
+  nil
+  "Whether to apply compiler flags to header files.  In some projects this takes too long."
   :group 'cmake-ide
   :type 'booleanp
   :safe #'booleanp)
@@ -369,7 +374,7 @@ This works by calling cmake in a temporary directory (or cmake-ide-build-dir)
 
 (defun cmake-ide--set-flags-for-hdr-file (idb buffer sys-includes)
   "Set the compiler flags from IDB for header BUFFER with SYS-INCLUDES."
-  (when (not (string-empty-p (cmake-ide--buffer-string buffer)))
+  (when (and (not (string-empty-p (cmake-ide--buffer-string buffer))) (not cmake-ide-header-no-flags))
     (cond
      ;; try all unique compiler flags until one successfully compiles the header
      (cmake-ide-try-unique-compiler-flags-for-headers (cmake-ide--hdr-try-unique-compiler-flags idb buffer sys-includes))
@@ -609,11 +614,9 @@ the object file's name just above."
     (let ((default-directory cmake-dir))
       (cmake-rez-check-active project-dir)
       (cmake-ide--message "Running cmake for src path %s in build path %s" project-dir cmake-dir)
-      (cmake-rez--set-rez-env-variables project-dir)
-      (start-process "cmake" "*cmake*" cmake-ide-cmake-command cmake-ide-cmake-opts  "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON" project-dir))))
-      ;; (start-process "cmake" "*cmake*" cmake-ide-cmake-command cmake-ide-cmake-opts (concat "-DCMAKE_MODULE_PATH="
-      ;;                                                                                       (cmake-rez--get-cmake-vars
-      ;;                                                                                        project-dir))  "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON" project-dir))))
+      (apply 'start-process (append (list "cmake" "*cmake*" cmake-ide-cmake-command)
+                                    (split-string cmake-ide-cmake-opts)
+                                    (list "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON" project-dir))))))
 
 
 (defun cmake-ide--get-project-key ()
@@ -645,23 +648,15 @@ the object file's name just above."
         build-dir))))
 
 
-(defun cmake-ide--get-build-dir-old ()
-  "Return the directory name to run CMake in."
-  ;; build the directory key for the project
-  (let ((build-dir (cmake-ide--build-dir-var)))
-    (if (not build-dir)
-        (setq build-dir (cmake-ide--get-build-dir-from-hash)))
-    (if (not (file-accessible-directory-p build-dir))
-        (make-directory build-dir))
-    (file-name-as-directory build-dir)))
-
 (defun cmake-ide--get-build-dir ()
   "Return the directory name to run CMake in."
   ;; build the directory key for the project
-  (let ((build-dir (cmake-ide--build-dir-var)))
-    (when (not build-dir)
-      (setq build-dir (cmake-ide--get-build-dir-from-hash)))
+  (let ((build-dir
+         (expand-file-name (or (cmake-ide--build-dir-var)
+                               (cmake-ide--get-build-dir-from-hash))
+                           (cmake-ide--locate-project-dir))))
     (when (not (file-accessible-directory-p build-dir))
+      (cmake-ide--message "Making directory %s" build-dir)
       (make-directory build-dir))
     (setq cmake-ide-build-dir build-dir)
     (file-name-as-directory build-dir)))
