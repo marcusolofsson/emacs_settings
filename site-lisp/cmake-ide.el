@@ -45,6 +45,7 @@
 (require 'cl-lib)
 (require 'seq)
 (require 's)
+(require 'cmake-rez)
 
 (declare-function rtags-call-rc "rtags")
 
@@ -613,9 +614,10 @@ the object file's name just above."
   (when project-dir
     (let ((default-directory cmake-dir))
       (cmake-ide--message "Running cmake for src path %s in build path %s" project-dir cmake-dir)
+      (cmake-rez--set-rez-env-variables project-dir)
       (apply 'start-process (append (list "cmake" "*cmake*" cmake-ide-cmake-command)
                                     (split-string cmake-ide-cmake-opts)
-                                    (list "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON" project-dir))))))
+                                    (list "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON" (concat  "-DCMAKE_MODULE_PATH=" (cmake-rez--get-cmake-vars project-dir)) project-dir))))))
 
 
 (defun cmake-ide--get-project-key ()

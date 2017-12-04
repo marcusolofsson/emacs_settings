@@ -1,23 +1,14 @@
 #!/usr/bin/env python
 import os
 import sys
-if os.environ.get("REZ_USED"):
-    import rez
-else:
-    if os.path.exists("/opt/rez_packages"):
-        sys.path.append("/opt/rez_packages/rez/2.12.0/python-2.7")
-    else:
-        sys.path.append("/home/marcus/packages/rez/2.13.0/platform-linux/arch-64bit/os-Fedora-25")
-    import rez
 import shutil
 from datetime import datetime
 import inspect
 from rez.build_process_ import create_build_process, BuildType
 from rez.build_system import create_build_system
-
 import xml.dom.minidom as dom
+# from pprint import pprint
 
-from pprint import pprint
 
 class ClionWorkspace(object):
     """
@@ -53,7 +44,7 @@ class ClionWorkspace(object):
 
     @property
     def CMakeSettings(self):
-         return self.find(name="CMakeSettings")[0][0].getAttribute('GENERATION_OPTIONS')
+        return self.find(name="CMakeSettings")[0][0].getAttribute('GENERATION_OPTIONS')
 
     @CMakeSettings.setter
     def CMakeSettings(self, value):
@@ -75,7 +66,7 @@ class ClionWorkspace(object):
                 if child.tagName == "envs":
                     current_envs = child
         envs = dom.Element("envs")
-        for k,v in value.iteritems():
+        for k, v in value.iteritems():
             el = dom.Element("env")
             el.setAttribute("name", k)
             el.setAttribute("value", v)
