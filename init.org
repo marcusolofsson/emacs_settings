@@ -585,7 +585,7 @@
    (require 'helm)
    (require 'helm-config)
 
-   (setq helm-split-window-in-side-p t
+   (setq helm-split-window-inside-p t
          helm-M-x-fuzzy-match t
          helm-buffers-fuzzy-matching t
          helm-recentf-fuzzy-match t
@@ -1196,9 +1196,11 @@
       (add-hook 'c-mode-hook 'irony-mode)
       (add-hook 'objc-mode-hook 'irony-mode)
 
-   (defun c-irony-completion-hook () 
-     (define-key irony-mode-map [remap completion-at-point] 'irony-completion-at-point-async)
-     (define-key irony-mode-map [remap complete-symbol] 'irony-completion-at-point-async))
+   (defun fps/c-irony-completion-hook () 
+     (define-key irony-mode-map [remap completion-at-point]
+       'irony-completion-at-point-async)
+     (define-key irony-mode-map [remap complete-symbol]
+       'irony-completion-at-point-async))
 
       (add-hook 'irony-mode-hook 'c-irony-completion-hook)
       (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
@@ -1207,9 +1209,11 @@
    (setq company-backends (delete 'company-semantic company-backends))
    (eval-after-load 'company
      '(add-to-list
-       'company-backends 'company-irony))
+       'company-backends '(company-irony-c-headers company-irony)))
 
    (setq company-idle-delay 0)
+   (define-key c-mode-map [(tab)] 'company-complete)
+   (define-key c++-mode-map [(tab)] 'company-complete)
    (add-hook 'c++-mode-hook 'flycheck-mode)
    (add-hook 'c-mode-hook 'flycheck-mode)
    #+END_SRC
@@ -1494,13 +1498,21 @@
 ** Bindings for extra plugins
 
    #+BEGIN_SRC emacs-lisp
+
+   ;;
+   ;; move-text keybindings
    (define-key custom-bindings-map (kbd "<M-S-down>")  'move-text-down)
    (define-key custom-bindings-map (kbd "<M-S-up>")  'move-text-up)
-   (define-key custom-bindings-map (kbd "C-D") 'duplicate-thing)
+   (define-key custom-bindings-map (kbd "<C-D>") 'duplicate-thing)
    (define-key custom-bindings-map (kbd "C-t t") 'yas-expand)
+
+   ;;
+   ;; rtags keybindings
    (define-key custom-bindings-map (kbd "M-.") (function rtags-find-symbol-at-point))
    (define-key custom-bindings-map (kbd "M-,") (function rtags-find-references-at-point))
 
+   ;;
+   ;; Origami keybindings
    (define-key origami-mode-map (kbd "C-c o c") 'origami-close-node)
    (define-key origami-mode-map (kbd "C-c o o") 'origami-open-node)
    (define-key origami-mode-map (kbd "C-c o C") 'origami-close-all-nodes)
