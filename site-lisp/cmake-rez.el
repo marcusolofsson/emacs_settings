@@ -42,25 +42,25 @@
     (setq cmake-rez-is-active nil)))
 
 (defun cmake-rez-get-resolve (cmake-root-dir)
-  "Resolve the dependicies that is required for this project."
-  )
+  "Resolve the dependicies that is required for this project. CMAKE-ROOT-DIR"
+)
 
 (defun cmake-rez--set-rez-env-variables (project-dir)
-  "Set the environment variables that rez needs for it to be used."
-  (eshell-command-result (concat "python " (concat user-emacs-directory "/site-lisp/rez-environs.py" project-dir)))
-  (setenv "REZ_BUILD_PROJECT_NAME" )
-  (setenv "REZ_BUILD_REQUIRES_UNVERSIONED" )
-  (setenv "REZ_BUILD_PROJECT_VERSION" ))
-  
+  "Set the environment variables that rez needs for it to be used picks data from PROJECT-DIR."
+  (setq envs (eshell-command-result (concat "rez-python "
+                                            (concat user-emacs-directory "/site-lisp/rez-info.py " project-dir "cpp"))))
+  (setq env-list (s-split " " envs))
+  (while (env-list)
+    (setenv (first (s-split ":" env-list)) (car (last (s-split ":" (first env-list)))))
+    (setq env-list (cdr env-list))))
 
 (defun cmake-rez--get-cmake-vars (project-dir)
-  "Return the cmake arguments for the cmake run from CMAKE-ROOT-DIR."
-  (setenv "REZ_BUILD_PROJECT_NAME")
+  "Return the cmake arguments for the cmake run from PROJECT-DIR."
   (car (last
         (s-split "\n"
                  (s-trim-right
                   (eshell-command-result
-                   (concat "python "
+                   (concat "rez-python "
                            (concat user-emacs-directory "/site-lisp/rez-resolve_cmake.py " project-dir))))))))
 
 
