@@ -613,6 +613,7 @@ the object file's name just above."
   "Run the CMake process for PROJECT-DIR in CMAKE-DIR."
   (when project-dir
     (let ((default-directory cmake-dir))
+      (cmake-rez-check-active project-dir)
       (cmake-ide--message "Running cmake for src path %s in build path %s" project-dir cmake-dir)
       (cmake-rez--set-rez-env-variables project-dir)
       (apply 'start-process (append (list "cmake" "*cmake*" cmake-ide-cmake-command)

@@ -158,7 +158,8 @@
              demangle-mode           ; Automatically demangle C++ symbols
              diminish                ; Diminished modes from modeline
              dired+                  ; Extensions to Dired.
-             dired-efap              ; Edit Filename At Point in a dired buffer
+             dired-efap              ; Edit Filename At Point in a dired buffer.
+             doctags                 ; Generation of tags documentation in Doxygen syntax.
              duplicate-thing         ; Duplicate current line & selection
              drag-stuff              ; Drag stuff around in Emacs
              elpy                    ; On-the-fly syntax checking
@@ -199,12 +200,13 @@
              opencl-mode             ; Syntax coloring for opencl kernels.
              org                     ; Outline-based notes management and organizer
              org-projectile          ; Repository todo management for org-mode
-             ;; origami                 ; Flexible text folding.
+             origami                 ; Flexible text folding.
              paredit                 ; minor mode for editing parentheses
              pdf-tools               ; Emacs support library for PDF files
              powerline               ; Rewrite of powerline
              projectile              ; Manage and navigate projects in Emacs easily
              puppet-mode             ; Major mode for Puppet manifests
+             python-environment      ; virtualenv API for Emacs Lisp.
              rtags                   ; A front-end for rtags
              s                       ; The long lost Emacs string manipulation library.
              smart-mode-line         ; A color coded smart mode-line.
@@ -256,6 +258,9 @@
 
    #+BEGIN_SRC emacs-lisp
 
+   (use-package python-environment
+     :ensure t)
+
    (use-package yasnippet
      :ensure t)
 
@@ -274,16 +279,8 @@
      :init
      (add-hook 'after-init-hook 'global-origami-mode))
 
-     ;; (use-package origami
-     ;;   :ensure t
-     ;;   :init
-     ;;   (global-origami-mode t))
-
-
    (use-package neotree
      :ensure t)
-   ;; :config
-   ;; (setq projectile-switch-project-action 'neotree-projectile-action))
     #+END_SRC
    
 ** Sane defaults
@@ -587,7 +584,7 @@
    (require 'helm)
    (require 'helm-config)
 
-   (setq helm-split-window-in-side-p t
+   (setq helm-split-window-inside-p t
          helm-M-x-fuzzy-match t
          helm-buffers-fuzzy-matching t
          helm-recentf-fuzzy-match t
@@ -706,14 +703,14 @@
    I use =org-agenda= along with =org-capture= for appointments and such.
 
    #+BEGIN_SRC emacs-lisp
-   (setq org-agenda-files '("~/drive/emacs/agenda.org")  ; A list of agenda files
-         org-agenda-default-appointment-duration 120 ; 2 hours appointments
+   (setq org-agenda-files '("~/.emacs.d/todos/agenda.org")  ; A list of agenda files
+         org-agenda-default-appointment-duration 90 ; 1.5 hours appointments
          org-capture-templates                       ; Template for adding tasks
-         '(("t" "Tasks" entry (file+headline "~/drive/emacs/agenda.org" "Tasks")
+         '(("t" "Tasks" entry (file+headline "~/.emacs.d/todos/agenda.org" "Tasks")
             "** TODO %?" :prepend t)
-           ("m" "Master" entry (file+olp "~/drive/emacs/agenda.org" "Oppgaver" "Master")
+           ("m" "Master" entry (file+olp "~/.emacs.d/todos/master.org" "Oppgaver" "Master")
             "*** TODO %?" :prepend t)
-           ("a" "Deals" entry (file+headline "~/drive/emacs/agenda.org" "Deals")
+           ("a" "Deals" entry (file+headline "~/.emacs.d/todos/agenda.org" "Deals")
             "** %?\n   SCHEDULED: %T" :prepend t)))
    #+END_SRC
 
@@ -1201,18 +1198,18 @@
       (add-hook 'c-mode-hook 'irony-mode)
       (add-hook 'objc-mode-hook 'irony-mode)
 
-   (defun c-irony-completion-hook () 
+   (defun fps/c-irony-completion-hook () 
      (define-key irony-mode-map [remap completion-at-point] 'irony-completion-at-point-async)
      (define-key irony-mode-map [remap complete-symbol] 'irony-completion-at-point-async))
 
-      (add-hook 'irony-mode-hook 'c-irony-completion-hook)
-      (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-      (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
+   (add-hook 'irony-mode-hook 'fps/c-irony-completion-hook)
+   (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+   (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
 
    (setq company-backends (delete 'company-semantic company-backends))
    (eval-after-load 'company
      '(add-to-list
-       'company-backends 'company-irony))
+       'company-backends '(company-irony-c-headers company-irony)))
 
    (setq company-idle-delay 0)
    (add-hook 'c++-mode-hook 'flycheck-mode)
@@ -1377,8 +1374,6 @@
    instructions from the site.
 
    #+BEGIN_SRC emacs-lisp
-
-
    (use-package company-jedi
                 :ensure t
                 :config
