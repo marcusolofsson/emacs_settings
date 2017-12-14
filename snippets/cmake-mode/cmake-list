@@ -20,7 +20,7 @@ set(make_args VERBOSE=1)
 
 
 if(REZ_BUILD_INSTALL)
-  set(install_cmd make install \${make_args})
+  set(install_cmd \$(MAKE) install \${make_args})
 else()
   set(install_cmd "")
 endif()
@@ -30,7 +30,7 @@ ExternalProject_add(
   URL \${`(nth 0 (last (s-split "/" (directory-file-name (file-name-directory (buffer-name))))))`_path}
   PREFIX \${`(nth 0 (last (s-split "/" (directory-file-name (file-name-directory (buffer-name))))))`_version}
   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=\${CMAKE_INSTALL_PREFIX}
-  BUILD_COMMAND make \${make_args}
+  BUILD_COMMAND \$(MAKE) \${make_args}
   INSTALL_COMMAND "\${install_cmd}")
 
 ilp_install_cmake()

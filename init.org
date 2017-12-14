@@ -196,6 +196,7 @@
              multiple-cursors        ; Multiple cursors for Emacs
              neotree                 ; A tree plugin like NerdTree for Vim
              olivetti                ; Minor mode for a nice writing environment
+             opencl-mode             ; Syntax coloring for opencl kernels.
              org                     ; Outline-based notes management and organizer
              org-projectile          ; Repository todo management for org-mode
              ;; origami                 ; Flexible text folding.
@@ -262,6 +263,7 @@
      :ensure t
      :init
      (add-hook 'after-init-hook 'company-statistics-mode))
+
    (use-package flycheck
      :ensure t
      :init
@@ -769,6 +771,9 @@
    current project and feed it to rtags ans such things.
 
    #+BEGIN_SRC emacs-lisp
+   (use-package cmake-rez
+     :ensure t)
+
    (use-package cmake-ide
      :ensure t
      :config
