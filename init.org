@@ -162,6 +162,7 @@
              doctags                 ; Generation of tags documentation in Doxygen syntax.
              duplicate-thing         ; Duplicate current line & selection
              drag-stuff              ; Drag stuff around in Emacs
+             ein                     ; Emacs IPython Notebook.
              elpy                    ; On-the-fly syntax checking
              eredis                  ; eredis, a Redis client in emacs lisp
              expand-region           ; Increase selected region by semantic units
@@ -257,10 +258,6 @@
    but is not a high priority.
 
    #+BEGIN_SRC emacs-lisp
-
-   (use-package python-environment
-     :ensure t)
-
    (use-package yasnippet
      :ensure t)
 
@@ -269,10 +266,17 @@
      :init
      (add-hook 'after-init-hook 'company-statistics-mode))
 
+   (use-package elpy
+     :ensure t
+     :init
+     (elpy-enable)
+     (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)))
+
    (use-package flycheck
      :ensure t
      :init
-     (add-hook 'after-init-hook #'global-flycheck-mode))
+     (add-hook 'after-init-hook #'global-flycheck-mode)
+     (add-hook 'elpy-mode-hook 'flycheck-mode))
 
    (use-package origami
      :ensure t
