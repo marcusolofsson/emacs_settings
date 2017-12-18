@@ -159,6 +159,9 @@
              diminish                ; Diminished modes from modeline
              dired+                  ; Extensions to Dired.
              dired-efap              ; Edit Filename At Point in a dired buffer
+             docker                  ; Emacs interface to Docker.
+             docker-compose-mode     ; Major mode for editing docker-compose files.
+             dockerfile-mode         ; Major mode for editing Docker's Dockerfiles.
              duplicate-thing         ; Duplicate current line & selection
              drag-stuff              ; Drag stuff around in Emacs
              elpy                    ; On-the-fly syntax checking
@@ -184,6 +187,7 @@
              helm-projectile         ; Helm integration for Projectile
              helm-swoop              ; Efficiently hopping squeezed lines
              helm-rtags              ; A front-end for rtags
+             helm-tramp              ; Tramp helm interface for ssh, docker, vagrant.
              jedi-core               ; Common code of jedi.el and company-jedi.el
              js2-mode                ; Improved JavaScript editing mode
              json-mode               ; Major mode for editing JSON files
@@ -707,7 +711,7 @@
    (setq org-agenda-files '("~/drive/emacs/agenda.org")  ; A list of agenda files
          org-agenda-default-appointment-duration 120 ; 2 hours appointments
          org-capture-templates                       ; Template for adding tasks
-         '(("t" "Tasks" entry (file+headline "~/drive/emacs/agenda.org" "Tasks")
+         '(("t" "Tasks" entry (file+headline "~/.emacs.d/todos/todos.org" "Tasks")
             "** TODO %?" :prepend t)
            ("m" "Master" entry (file+olp "~/drive/emacs/agenda.org" "Oppgaver" "Master")
             "*** TODO %?" :prepend t)
