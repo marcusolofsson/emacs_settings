@@ -136,7 +136,7 @@
    #+BEGIN_SRC emacs-lisp
    (let* ((package--builtins nil)
           (packages
-           '(airline-themes          ; Airline theme
+           '(airline-themes          ; Airline theme.
              all-the-icons           ; A library for inserting Developer icons
              ansible                 ; Ansible minor mode.
              auto-compile            ; automatically compile Emacs Lisp libraries
@@ -746,25 +746,39 @@
    it gives many features to the c++ toolkit
 
    #+BEGIN_SRC emacs-lisp
-   (require 'irony)
-   (require 'rtags)
-   (require 'company-irony)
-   (require 'company-rtags)
-   (require 'helm-rtags)
-   (require 'flycheck-rtags)
+   (use-package irony
+     :ensure t)
 
-   (setq rtags-completions-enabled t)
-   (push 'company-rtags company-backends)      
-   (setq rtags-autostart-diagnostics t)
-   (rtags-enable-standard-keybindings)
+   (use-package rtags
+     :ensure t
+     :init
+     (setq rtags-completions-enabled t)
+     (setq rtags-autostart-diagnostics t)
+     (rtags-enable-standard-keybindings))
 
-   (defun flycheck-rtags-usage-setup ()
+   (use-package company-rtags
+     :ensure t
+     :config
+     (push 'company-rtags company-backends))
+
+   (use-package helm-rtags
+     :ensure t
+     :init
+     (setq rtags-use-helm t))
+
+   (defun fps/flycheck-rtags-usage-setup ()
      (flycheck-select-checker 'rtags)
      (setq-local flycheck-highlighting-mode nil)
      (setq-local flycheck-check-syntax-automatically nil))
-   (add-hook 'c-mode-common-hook #'flycheck-rtags-usage-setup)
-   (eval-after-load 'flycheck
-     '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
+
+   (use-package flycheck-rtags
+     :ensure t
+     :init
+     (add-hook 'c-mode-common-hook #'fps/flycheck-rtags-usage-setup)
+     :config
+     (eval-after-load 'flycheck
+       '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup)))
+
    #+END_SRC
 
 ** CMake-IDE
@@ -1170,10 +1184,10 @@
    where everything should live. But here are my preferences as I like them.
 
    #+BEGIN_SRC emacs-lisp
-   (defun c-argument-indent-hook () 
+   (defun fps/c-argument-indent-hook () 
      (c-set-offset 'arglist-intro '+))
 
-   (defun c-indentation-hook ()
+   (defun fps/c-indentation-hook ()
      (c-set-offset 'substatement-open 0)
      (setq c-tab-always-indent t)
      (setq c-basic-offset 4)
@@ -1182,8 +1196,8 @@
      (setq tab-width 4)
      (setq indent-tabs-mode nil))
 
-   (add-hook 'c-mode-common-hook 'c-indentation-hook)
-   (add-hook 'c-mode-common-hook 'c-argument-indent-hook)
+   (add-hook 'c-mode-common-hook 'fps/c-indentation-hook)
+   (add-hook 'c-mode-common-hook 'fps/c-argument-indent-hook)
    #+END_SRC
 
    I find that I mostly does C++ and not as much C. Therefore I'm putting the
@@ -1199,24 +1213,33 @@
    I'm using irony to help me when coding in c++ 
 
    #+BEGIN_SRC emacs-lisp
-      (add-hook 'c++-mode-hook 'irony-mode)
-      (add-hook 'c-mode-hook 'irony-mode)
-      (add-hook 'objc-mode-hook 'irony-mode)
+   (add-hook 'c++-mode-hook 'irony-mode)
+   (add-hook 'c-mode-hook 'irony-mode)
+   (add-hook 'objc-mode-hook 'irony-mode)
 
    (defun fps/c-irony-completion-hook () 
      (define-key irony-mode-map [remap completion-at-point] 'irony-completion-at-point-async)
      (define-key irony-mode-map [remap complete-symbol] 'irony-completion-at-point-async))
 
-   (add-hook 'irony-mode-hook 'fps/c-irony-completion-hook)
-   (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-   (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
+   (use-package company-irony
+     :ensure t
+     :init
+     (add-hook 'irony-mode-hook 'fps/c-irony-completion-hook)
+     (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+     (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
+     (setq company-backends (delete 'company-semantic company-backends))
+     (setq company-idle-delay 0)
+     :config
+     (eval-after-load 'company
+       '(add-to-list
+         'company-backends '(company-irony-c-headers company-irony))))
 
-   (setq company-backends (delete 'company-semantic company-backends))
-   (eval-after-load 'company
-     '(add-to-list
-       'company-backends '(company-irony-c-headers company-irony)))
+   (use-package flycheck-irony
+     :ensure t
+     :config
+     (eval-after-load 'flycheck
+       '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup)))
 
-   (setq company-idle-delay 0)
    (add-hook 'c++-mode-hook 'flycheck-mode)
    (add-hook 'c-mode-hook 'flycheck-mode)
    #+END_SRC
