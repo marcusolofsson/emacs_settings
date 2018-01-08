@@ -103,7 +103,7 @@
         (when (file-exists-p private-file)
           (load-file private-file)))))
    #+END_SRC
-   
+
 ** Packages
 
    Managing extensions for Emacs is simplified using =package= which is
@@ -117,7 +117,7 @@
    (require 'package)
    (package-initialize)
    #+END_SRC
-   
+
    Packages can be fetched from different mirrors, [[http://melpa.milkbox.net/#/][melpa]] is the largest
    archive and is well maintained.
 
@@ -174,6 +174,7 @@
              flymake-puppet          ; An Emacs flymake handler for syntax-checking puppet using puppet-lint
              focus                   ; Dim color of text in surrounding sections
              irony                   ; C/C++ minor mode powered by libclang
+             itail                   ; An interactive tail mode that allows you to filter the tail with unix pipes.
              geiser                  ; GNU Emacs and Scheme talk to each other
              git-gutter-fringe       ; Fringe version of git-gutter.el
              golden-ratio            ; Automatic resizing windows to golden ratio
@@ -230,7 +231,7 @@
               (package-refresh-contents)
               (mapc 'package-install packages)))))
    #+END_SRC
-   
+
 ** Mac OS X
 
    I run this configuration mostly on Mac OS X, so we need a couple of
@@ -286,8 +287,11 @@
 
    (use-package neotree
      :ensure t)
-    #+END_SRC
-   
+
+   (use-package itail
+     :ensure t)
+   #+END_SRC
+
 ** Sane defaults
 
    These are what /I/ consider to be saner defaults.
@@ -382,7 +386,7 @@
    #+END_SRC
 
 ** Modes
-   
+
    There are some modes that are enabled by default that I don't find
    particularly useful. We create a list of these modes, and disable all of
    these.
@@ -424,10 +428,10 @@
    #+END_SRC
 
 ** Visuals
-   
+
    Initialize the powerline with powerline-center
-   Change the color-theme to =spacemacs-dark=. Since I love me some darker 
-   themes. 
+   Change the color-theme to =spacemacs-dark=. Since I love me some darker
+   themes.
 
    #+BEGIN_SRC emacs-lisp
    (require 'airline-themes)
@@ -508,7 +512,7 @@
      (set-face-background (car p) (cdr p)))
    #+END_SRC
 
-   Having line numbers in all buffers and windows is one thing I can't live 
+   Having line numbers in all buffers and windows is one thing I can't live
    without anymore.
 
    #+BEGIN_SRC emacs-lisp
@@ -535,7 +539,7 @@
          airline-utf-glyph-linenumber          #xe0a1)
    #+END_SRC
 ** PDF Tools
-  
+
    [[https://github.com/politza/pdf-tools][PDF Tools]] makes a huge improvement on the built-in [[http://www.gnu.org/software/emacs/manual/html_node/emacs/Document-View.html][doc-view-mode]]; the only
    drawback is the =pdf-tools-install= (which has to be executed before the
    package can be used) takes a couple of /seconds/ to execute. Instead of
@@ -564,9 +568,9 @@
          company-transformers '(company-sort-by-occurrence
                                 company-sort-by-backend-importance))
    #+END_SRC
-   
+
    Yasnippet is one of those things that I customize a lot so I have another
-   repository of them snippets under VCS. 
+   repository of them snippets under VCS.
 
    #+BEGIN_SRC emacs-lisp
    (setq yas-snippet-dirs '(concat user-emacs-directory "snippets"))
@@ -670,7 +674,7 @@
    (setq ispell-program-name "aspell")
    #+END_SRC
 
-   
+
    When working with several languages, we should be able to cycle through
    the languages we most frequently use. Every buffer should have a separate
    cycle of languages, so that cycling in one buffer does not change the
@@ -754,7 +758,7 @@
    (require 'flycheck-rtags)
 
    (setq rtags-completions-enabled t)
-   (push 'company-rtags company-backends)      
+   (push 'company-rtags company-backends)
    (setq rtags-autostart-diagnostics t)
    (rtags-enable-standard-keybindings)
 
@@ -768,8 +772,8 @@
    #+END_SRC
 
 ** CMake-IDE
-   
-   I use the brilliant cmake-ide to auto-generate code from 
+
+   I use the brilliant cmake-ide to auto-generate code from
    current project and feed it to rtags ans such things.
 
    #+BEGIN_SRC emacs-lisp
@@ -786,11 +790,11 @@
 
    I have some small snippets that I made my self and i need them on all systems
 
-#+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
 (setq yas-snippet-dirs
       '("~/.emacs.d/snippets"
         "~/.emacs.d/custom-snippets"))
-#+END_SRC
+   #+END_SRC
 
 ** Interactive functions
    <<sec:defuns>>
@@ -857,7 +861,7 @@
 
    (defun timestamp ()
      (interactive)
-     (insert (format-time-string "%Y-%m-%dT%H:%M:%S"))) 
+     (insert (format-time-string "%Y-%m-%dT%H:%M:%S")))
    #+END_SRC
 
    Simply closing a window and killing the buffer is something that I want todo alot of times.
@@ -874,7 +878,7 @@
 
 
    Switching back and forth between two buffers is something that I can find
-   my self do quite a lot. So to speed that up there was a need for a quick 
+   my self do quite a lot. So to speed that up there was a need for a quick
    swap thing.
 
    #+BEGIN_SRC emacs-lisp
@@ -973,7 +977,7 @@
        ad-do-it))
    #+END_SRC
 
-   The undo stack can sometimes be a bit overwhelming so I found this neat 
+   The undo stack can sometimes be a bit overwhelming so I found this neat
    undo-tree which helps me organize it better
 
    #+BEGIN_SRC emacs-lisp
@@ -1035,7 +1039,7 @@
           ;; (define-key map (kbd "C-0") 'global-scale-default)
           map))))
    #+END_SRC
-   
+
 * Mode specific
 ** Shell
 
@@ -1166,11 +1170,11 @@
    (add-hook 'c-mode-common-hook 'c-setup)
    #+END_SRC
 
-   There is as much debate about code styling as there is things about 
+   There is as much debate about code styling as there is things about
    where everything should live. But here are my preferences as I like them.
 
    #+BEGIN_SRC emacs-lisp
-   (defun c-argument-indent-hook () 
+   (defun c-argument-indent-hook ()
      (c-set-offset 'arglist-intro '+))
 
    (defun c-indentation-hook ()
@@ -1196,14 +1200,14 @@
    #+END_SRC
 
 
-   I'm using irony to help me when coding in c++ 
+   I'm using irony to help me when coding in c++
 
    #+BEGIN_SRC emacs-lisp
       (add-hook 'c++-mode-hook 'irony-mode)
       (add-hook 'c-mode-hook 'irony-mode)
       (add-hook 'objc-mode-hook 'irony-mode)
 
-   (defun fps/c-irony-completion-hook () 
+   (defun fps/c-irony-completion-hook ()
      (define-key irony-mode-map [remap completion-at-point] 'irony-completion-at-point-async)
      (define-key irony-mode-map [remap complete-symbol] 'irony-completion-at-point-async))
 
@@ -1226,8 +1230,8 @@
 
    #+BEGIN_SRC emacs-lisp
    (require 'cmake-mode)
-   (setq auto-mode-alist 
-      (append 
+   (setq auto-mode-alist
+      (append
        '(("CMakeLists\\.txt\\'" . cmake-mode))
        '(("\\.cmake\\'" . cmake-mode))
        auto-mode-alist))
@@ -1419,28 +1423,28 @@
 
 ** Bindings for [[https://github.com/magnars/expand-region.el][expand-region]]
 
-  #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (define-key custom-bindings-map (kbd "C->")  'er/expand-region)
   (define-key custom-bindings-map (kbd "C-<")  'er/contract-region)
-  #+END_SRC
+   #+END_SRC
 
 ** Bindings for [[https://github.com/magnars/multiple-cursors.el][multiple-cursors]]
 
-  #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (define-key custom-bindings-map (kbd "C-c e")  'mc/edit-lines)
   (define-key custom-bindings-map (kbd "C-c a")  'mc/mark-all-like-this)
   (define-key custom-bindings-map (kbd "C-c n")  'mc/mark-next-like-this)
-  #+END_SRC
+   #+END_SRC
 
 ** Bindings for [[http://magit.github.io][Magit]]
 
-  #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (define-key custom-bindings-map (kbd "C-c m") 'magit-status)
-  #+END_SRC
+   #+END_SRC
 
 ** Bindings for [[http://company-mode.github.io/][company-mode]]
 
-  #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (define-key company-active-map (kbd "C-d") 'company-show-doc-buffer)
   (define-key company-active-map (kbd "C-n") 'company-select-next)
   (define-key company-active-map (kbd "C-p") 'company-select-previous)
@@ -1448,11 +1452,11 @@
 
   (define-key company-mode-map (kbd "C-:") 'helm-company)
   (define-key company-active-map (kbd "C-:") 'helm-company)
-  #+END_SRC
+   #+END_SRC
 
 ** Bindings for [[http://emacs-helm.github.io/helm/][Helm]]
 
-  #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (define-key custom-bindings-map (kbd "C-c h")   'helm-command-prefix)
   (define-key custom-bindings-map (kbd "M-x")     'helm-M-x)
   (define-key custom-bindings-map (kbd "M-y")     'helm-show-kill-ring)
@@ -1466,7 +1470,7 @@
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
   (define-key helm-map (kbd "C-i")   'helm-execute-persistent-action)
   (define-key helm-map (kbd "C-z")   'helm-select-action)
-  #+END_SRC
+   #+END_SRC
 
 ** Bindings for neotree
    Utilizing neotree is a blessing :)
@@ -1476,7 +1480,7 @@
 
 ** Bindings for built-ins
 
-  #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (define-key custom-bindings-map (kbd "M-u")         'upcase-dwim)
   (define-key custom-bindings-map (kbd "M-c")         'capitalize-dwim)
   (define-key custom-bindings-map (kbd "M-l")         'downcase-dwim)
@@ -1494,7 +1498,7 @@
   (define-key custom-bindings-map (kbd "C-c t")
     (lambda () (interactive) (org-agenda nil "n")))
   (global-set-key [f10] 'toggle-menu-bar-mode-from-frame)
-  #+END_SRC
+   #+END_SRC
 
 ** Bindings for extra plugins
 
@@ -1513,7 +1517,7 @@
    #+END_SRC
 
 ** Bindings for functions defined [[sec:defuns][above]].
-   
+
    #+BEGIN_SRC emacs-lisp
    ;; (define-key global-map          (kbd "M-p")     'jump-to-previous-like-this)
    ;; (define-key global-map          (kbd "M-n")     'jump-to-next-like-this)
@@ -1537,15 +1541,15 @@
         (focus-read-only-mode 1)))
    (with-eval-after-load 'org
      (define-key org-mode-map (kbd "C-'") 'org-sync-pdf))
-  #+END_SRC
+   #+END_SRC
 
    Lastly we need to activate the map by creating and activating the
-  =minor-mode=.
+   =minor-mode=.
 
-  #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
   (define-minor-mode custom-bindings-mode
     "A mode that activates custom-bindings."
     t nil custom-bindings-map)
-  #+END_SRC
-  
+   #+END_SRC
+
 * License
