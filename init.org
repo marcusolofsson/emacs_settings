@@ -158,10 +158,10 @@
              demangle-mode           ; Automatically demangle C++ symbols
              diminish                ; Diminished modes from modeline
              dired+                  ; Extensions to Dired.
-             dired-efap              ; Edit Filename At Point in a dired buffer
              docker                  ; Emacs interface to Docker.
              docker-compose-mode     ; Major mode for editing docker-compose files.
              dockerfile-mode         ; Major mode for editing Docker's Dockerfiles.
+             doctags                 ; Generation of tags documentation in Doxygen syntax.
              duplicate-thing         ; Duplicate current line & selection
              drag-stuff              ; Drag stuff around in Emacs
              elpy                    ; On-the-fly syntax checking
@@ -200,14 +200,16 @@
              multiple-cursors        ; Multiple cursors for Emacs
              neotree                 ; A tree plugin like NerdTree for Vim
              olivetti                ; Minor mode for a nice writing environment
+             opencl-mode             ; Syntax coloring for opencl kernels.
              org                     ; Outline-based notes management and organizer
              org-projectile          ; Repository todo management for org-mode
-             ;; origami                 ; Flexible text folding.
+             origami                 ; Flexible text folding.
              paredit                 ; minor mode for editing parentheses
              pdf-tools               ; Emacs support library for PDF files
              powerline               ; Rewrite of powerline
              projectile              ; Manage and navigate projects in Emacs easily
              puppet-mode             ; Major mode for Puppet manifests
+             python-environment      ; virtualenv API for Emacs Lisp.
              rtags                   ; A front-end for rtags
              s                       ; The long lost Emacs string manipulation library.
              smart-mode-line         ; A color coded smart mode-line.
@@ -259,6 +261,9 @@
 
    #+BEGIN_SRC emacs-lisp
 
+   (use-package python-environment
+     :ensure t)
+
    (use-package yasnippet
      :ensure t)
 
@@ -266,6 +271,7 @@
      :ensure t
      :init
      (add-hook 'after-init-hook 'company-statistics-mode))
+
    (use-package flycheck
      :ensure t
      :init
@@ -276,16 +282,8 @@
      :init
      (add-hook 'after-init-hook 'global-origami-mode))
 
-     ;; (use-package origami
-     ;;   :ensure t
-     ;;   :init
-     ;;   (global-origami-mode t))
-
-
    (use-package neotree
      :ensure t)
-   ;; :config
-   ;; (setq projectile-switch-project-action 'neotree-projectile-action))
     #+END_SRC
    
 ** Sane defaults
@@ -449,7 +447,7 @@
          (load-theme (car (setq themes (cdr themes))) t))))
    #+END_SRC
 
-   Use the [[http://www.levien.com/type/myfonts/inconsolata.html][Inconsolata]] font if it's installed on the system.
+   Use the [[http://www.levien.com/type/myfonts/inconsolata.html][Source Code Pro]] font if it's installed on the system.
 
    #+BEGIN_SRC emacs-lisp
    (cond ((member "Source Code Pro" (font-family-list))
@@ -534,6 +532,15 @@
          airline-utf-glyph-readonly            #xe0a2
          airline-utf-glyph-linenumber          #xe0a1)
    #+END_SRC
+
+   Setting the time and date displayed in the mode line. 
+
+   #+BEGIN_SRC emacs-lisp
+   (setq display-time-format "%H:%M - %Y.%m.%d")
+   (display-time-mode t)
+   (setq display-time-load-average nil)
+   #+END_SRC
+
 ** PDF Tools
   
    [[https://github.com/politza/pdf-tools][PDF Tools]] makes a huge improvement on the built-in [[http://www.gnu.org/software/emacs/manual/html_node/emacs/Document-View.html][doc-view-mode]]; the only
@@ -708,14 +715,14 @@
    I use =org-agenda= along with =org-capture= for appointments and such.
 
    #+BEGIN_SRC emacs-lisp
-   (setq org-agenda-files '("~/drive/emacs/agenda.org")  ; A list of agenda files
-         org-agenda-default-appointment-duration 120 ; 2 hours appointments
+   (setq org-agenda-files '("~/.emacs.d/todos/agenda.org")  ; A list of agenda files
+         org-agenda-default-appointment-duration 90 ; 1.5 hours appointments
          org-capture-templates                       ; Template for adding tasks
          '(("t" "Tasks" entry (file+headline "~/.emacs.d/todos/todos.org" "Tasks")
             "** TODO %?" :prepend t)
-           ("m" "Master" entry (file+olp "~/drive/emacs/agenda.org" "Oppgaver" "Master")
+           ("m" "Master" entry (file+olp "~/.emacs.d/todos/master.org" "Oppgaver" "Master")
             "*** TODO %?" :prepend t)
-           ("a" "Deals" entry (file+headline "~/drive/emacs/agenda.org" "Deals")
+           ("a" "Deals" entry (file+headline "~/.emacs.d/todos/agenda.org" "Deals")
             "** %?\n   SCHEDULED: %T" :prepend t)))
    #+END_SRC
 
@@ -773,6 +780,9 @@
    current project and feed it to rtags ans such things.
 
    #+BEGIN_SRC emacs-lisp
+   (use-package cmake-rez
+     :ensure t)
+
    (use-package cmake-ide
      :ensure t
      :config
@@ -1206,9 +1216,9 @@
      (define-key irony-mode-map [remap complete-symbol]
        'irony-completion-at-point-async))
 
-      (add-hook 'irony-mode-hook 'c-irony-completion-hook)
-      (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-      (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
+   (add-hook 'irony-mode-hook 'fps/c-irony-completion-hook)
+   (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+   (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
 
    (setq company-backends (delete 'company-semantic company-backends))
    (eval-after-load 'company
@@ -1380,8 +1390,6 @@
    instructions from the site.
 
    #+BEGIN_SRC emacs-lisp
-
-
    (use-package company-jedi
                 :ensure t
                 :config
@@ -1406,6 +1414,32 @@
    (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
    #+END_SRC
 
+** Magit
+   specific code for handling org-mode when in ediff
+   #+BEGIN_SRC emacs-lisp
+   ;; Check for org mode and existence of buffer
+   (defun fps/ediff-org-showhide (buf command &rest cmdargs)
+     "If buffer exists and is orgmode then execute command"
+     (when buf
+       (when (eq (buffer-local-value 'major-mode (get-buffer buf)) 'org-mode)
+         (save-excursion (set-buffer buf) (apply command cmdargs)))))
+
+   (defun fps/ediff-org-unfold-tree-element ()
+     "Unfold tree at diff location"
+     (fps/ediff-org-showhide ediff-buffer-A 'org-reveal)  
+     (fps/ediff-org-showhide ediff-buffer-B 'org-reveal)  
+     (fps/ediff-org-showhide ediff-buffer-C 'org-reveal))
+
+   (defun f-ediff-org-fold-tree ()
+     "Fold tree back to top level"
+     (fps/ediff-org-showhide ediff-buffer-A 'hide-sublevels 1)  
+     (fps/ediff-org-showhide ediff-buffer-B 'hide-sublevels 1)  
+     (fps/ediff-org-showhide ediff-buffer-C 'hide-sublevels 1))
+
+   (add-hook 'ediff-select-hook 'fps/ediff-org-unfold-tree-element)
+   (add-hook 'ediff-unselect-hook 'fps/ediff-org-fold-tree)
+   #+END_SRC
+   
 * Key bindings
 
   Inspired by [[http://stackoverflow.com/questions/683425/globally-override-key-binding-in-emacs][this StackOverflow post]] I keep a =custom-bindings-map= that
