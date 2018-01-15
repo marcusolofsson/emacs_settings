@@ -158,7 +158,9 @@
              demangle-mode           ; Automatically demangle C++ symbols
              diminish                ; Diminished modes from modeline
              dired+                  ; Extensions to Dired.
-             dired-efap              ; Edit Filename At Point in a dired buffer.
+             docker                  ; Emacs interface to Docker.
+             docker-compose-mode     ; Major mode for editing docker-compose files.
+             dockerfile-mode         ; Major mode for editing Docker's Dockerfiles.
              doctags                 ; Generation of tags documentation in Doxygen syntax.
              duplicate-thing         ; Duplicate current line & selection
              drag-stuff              ; Drag stuff around in Emacs
@@ -187,6 +189,7 @@
              helm-projectile         ; Helm integration for Projectile
              helm-swoop              ; Efficiently hopping squeezed lines
              helm-rtags              ; A front-end for rtags
+             helm-tramp              ; Tramp helm interface for ssh, docker, vagrant.
              jedi-core               ; Common code of jedi.el and company-jedi.el
              js2-mode                ; Improved JavaScript editing mode
              json-mode               ; Major mode for editing JSON files
@@ -455,7 +458,7 @@
          (load-theme (car (setq themes (cdr themes))) t))))
    #+END_SRC
 
-   Use the [[http://www.levien.com/type/myfonts/inconsolata.html][Inconsolata]] font if it's installed on the system.
+   Use the [[http://www.levien.com/type/myfonts/inconsolata.html][Source Code Pro]] font if it's installed on the system.
 
    #+BEGIN_SRC emacs-lisp
    (cond ((member "Source Code Pro" (font-family-list))
@@ -540,6 +543,15 @@
          airline-utf-glyph-readonly            #xe0a2
          airline-utf-glyph-linenumber          #xe0a1)
    #+END_SRC
+
+   Setting the time and date displayed in the mode line. 
+
+   #+BEGIN_SRC emacs-lisp
+   (setq display-time-format "%H:%M - %Y.%m.%d")
+   (display-time-mode t)
+   (setq display-time-load-average nil)
+   #+END_SRC
+
 ** PDF Tools
   
    [[https://github.com/politza/pdf-tools][PDF Tools]] makes a huge improvement on the built-in [[http://www.gnu.org/software/emacs/manual/html_node/emacs/Document-View.html][doc-view-mode]]; the only
@@ -717,7 +729,7 @@
    (setq org-agenda-files '("~/.emacs.d/todos/agenda.org")  ; A list of agenda files
          org-agenda-default-appointment-duration 90 ; 1.5 hours appointments
          org-capture-templates                       ; Template for adding tasks
-         '(("t" "Tasks" entry (file+headline "~/.emacs.d/todos/agenda.org" "Tasks")
+         '(("t" "Tasks" entry (file+headline "~/.emacs.d/todos/todos.org" "Tasks")
             "** TODO %?" :prepend t)
            ("m" "Master" entry (file+olp "~/.emacs.d/todos/master.org" "Oppgaver" "Master")
             "*** TODO %?" :prepend t)
@@ -1224,8 +1236,10 @@
    (add-hook 'objc-mode-hook 'irony-mode)
 
    (defun fps/c-irony-completion-hook () 
-     (define-key irony-mode-map [remap completion-at-point] 'irony-completion-at-point-async)
-     (define-key irony-mode-map [remap complete-symbol] 'irony-completion-at-point-async))
+     (define-key irony-mode-map [remap completion-at-point]
+       'irony-completion-at-point-async)
+     (define-key irony-mode-map [remap complete-symbol]
+       'irony-completion-at-point-async))
 
    (use-package company-irony
      :ensure t
@@ -1246,6 +1260,9 @@
      (eval-after-load 'flycheck
        '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup)))
 
+   (setq company-idle-delay 0)
+   (define-key c-mode-map [(tab)] 'company-complete)
+   (define-key c++-mode-map [(tab)] 'company-complete)
    (add-hook 'c++-mode-hook 'flycheck-mode)
    (add-hook 'c-mode-hook 'flycheck-mode)
    #+END_SRC
@@ -1432,6 +1449,12 @@
    (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
    #+END_SRC
 
+** Magit
+   specific code for handling org-mode when in ediff
+   #+BEGIN_SRC emacs-lisp
+   (add-hook 'ediff-prepare-buffer-hook #'show-all)
+   #+END_SRC
+   
 * Key bindings
 
   Inspired by [[http://stackoverflow.com/questions/683425/globally-override-key-binding-in-emacs][this StackOverflow post]] I keep a =custom-bindings-map= that
@@ -1528,13 +1551,21 @@
 ** Bindings for extra plugins
 
    #+BEGIN_SRC emacs-lisp
+
+   ;;
+   ;; move-text keybindings
    (define-key custom-bindings-map (kbd "<M-S-down>")  'move-text-down)
    (define-key custom-bindings-map (kbd "<M-S-up>")  'move-text-up)
-   (define-key custom-bindings-map (kbd "C-D") 'duplicate-thing)
+   (define-key custom-bindings-map (kbd "<C-D>") 'duplicate-thing)
    (define-key custom-bindings-map (kbd "C-t t") 'yas-expand)
+
+   ;;
+   ;; rtags keybindings
    (define-key custom-bindings-map (kbd "M-.") (function rtags-find-symbol-at-point))
    (define-key custom-bindings-map (kbd "M-,") (function rtags-find-references-at-point))
 
+   ;;
+   ;; Origami keybindings
    (define-key origami-mode-map (kbd "C-c o c") 'origami-close-node)
    (define-key origami-mode-map (kbd "C-c o o") 'origami-open-node)
    (define-key origami-mode-map (kbd "C-c o C") 'origami-close-all-nodes)
