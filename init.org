@@ -174,6 +174,7 @@
              flymake-puppet          ; An Emacs flymake handler for syntax-checking puppet using puppet-lint
              focus                   ; Dim color of text in surrounding sections
              irony                   ; C/C++ minor mode powered by libclang
+             itail                   ; An interactive tail mode that allows you to filter the tail with unix pipes.
              geiser                  ; GNU Emacs and Scheme talk to each other
              git-gutter-fringe       ; Fringe version of git-gutter.el
              golden-ratio            ; Automatic resizing windows to golden ratio
@@ -286,8 +287,11 @@
 
    (use-package neotree
      :ensure t)
-    #+END_SRC
-   
+
+   (use-package itail
+     :ensure t)
+   #+END_SRC
+
 ** Sane defaults
 
    These are what /I/ consider to be saner defaults.
@@ -421,13 +425,15 @@
    (when (version< emacs-version "24.4")
      (eval-after-load 'auto-compile
        '((auto-compile-on-save-mode 1))))  ; compile .el files on save
+
+   (add-hook 'ediff-prepare-buffer-hook #'show-all)
    #+END_SRC
 
 ** Visuals
-   
+
    Initialize the powerline with powerline-center
-   Change the color-theme to =spacemacs-dark=. Since I love me some darker 
-   themes. 
+   Change the color-theme to =spacemacs-dark=. Since I love me some darker
+   themes.
 
    #+BEGIN_SRC emacs-lisp
    (require 'airline-themes)
@@ -800,11 +806,11 @@
 
    I have some small snippets that I made my self and i need them on all systems
 
-#+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
 (setq yas-snippet-dirs
       '("~/.emacs.d/snippets"
         "~/.emacs.d/custom-snippets"))
-#+END_SRC
+   #+END_SRC
 
 ** Interactive functions
    <<sec:defuns>>
