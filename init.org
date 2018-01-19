@@ -141,6 +141,7 @@
              ansible                 ; Ansible minor mode.
              auto-compile            ; automatically compile Emacs Lisp libraries
              cider                   ; Clojure Interactive Development Environment
+             clang-format            ; Format code using clang-format.
              company                 ; Modular text completion framework
              company-ansible         ; Anaconda backend for company-mode
              company-cmake           ; company-mode completion back-end for CMake
@@ -289,6 +290,9 @@
      :ensure t)
 
    (use-package itail
+     :ensure t)
+
+   (use-package clang-format
      :ensure t)
    #+END_SRC
 
@@ -1509,6 +1513,8 @@
    (define-key custom-bindings-map (kbd "C-t t") 'yas-expand)
    (define-key custom-bindings-map (kbd "M-.") (function rtags-find-symbol-at-point))
    (define-key custom-bindings-map (kbd "M-,") (function rtags-find-references-at-point))
+
+   (define-key custom-bindings-map (kbd "<C-M-tab>") 'clang-format-region)
 
    (define-key origami-mode-map (kbd "C-c o c") 'origami-close-node)
    (define-key origami-mode-map (kbd "C-c o o") 'origami-open-node)
