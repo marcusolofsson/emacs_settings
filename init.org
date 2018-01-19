@@ -137,7 +137,7 @@
    (let* ((package--builtins nil)
           (packages
            '(airline-themes          ; Airline theme.
-             all-the-icons           ; A library for inserting Developer icons
+             all-the-icons           ; A library for inserting Developer icons.
              ansible                 ; Ansible minor mode.
              auto-compile            ; automatically compile Emacs Lisp libraries
              cider                   ; Clojure Interactive Development Environment
@@ -171,6 +171,7 @@
              f                       ; Modern API for working with files and directories
              flycheck                ; On-the-fly syntax checking
              flycheck-irony          ; Flycheck: C/C++ support via Irony
+             flycheck-plantuml       ; Integrate plantuml with flycheck
              flycheck-pyflakes       ; Support pyflakes in flycheck
              flycheck-rtags          ; RTags Flycheck integration
              flymake-puppet          ; An Emacs flymake handler for syntax-checking puppet using puppet-lint
@@ -209,6 +210,7 @@
              origami                 ; Flexible text folding.
              paredit                 ; minor mode for editing parentheses
              pdf-tools               ; Emacs support library for PDF files
+             plantuml-mode           ; Major mode for PlantUML
              powerline               ; Rewrite of powerline
              projectile              ; Manage and navigate projects in Emacs easily
              puppet-mode             ; Major mode for Puppet manifests
@@ -756,6 +758,30 @@
      '(progn
         (setcar (nthcdr 2 org-emphasis-regexp-components) " \t\n,")
         (custom-set-variables `(org-emphasis-alist ',org-emphasis-alist))))
+   #+END_SRC
+
+   Starting to use the splendid plantuml for uml'ing and this needs some small setup.
+
+   #+BEGIN_SRC emacs-lisp
+   (use-package plantuml-mode
+     :ensure t
+     :init
+     (setq org-plantuml-jar-path
+           (expand-file-name (concat user-emacs-directory "custom-plugins/plantuml.jar")))
+     (setq plantuml-jar-path
+           (expand-file-name (concat user-emacs-directory "custom-plugins/plantuml.jar")))
+     (org-babel-do-load-languages
+      'org-babel-load-languages
+      '((plantuml . t)))
+     (add-to-list 'auto-mode-alist '("\\.uml\\'" . plantuml-mode))
+     (add-to-list
+      'org-src-lang-modes '("plantuml" . plantuml)))
+
+   (use-package flycheck-plantuml
+     :ensure t
+     :config
+     (flycheck-plantuml-setup))
+
    #+END_SRC
 
 ** RTags
