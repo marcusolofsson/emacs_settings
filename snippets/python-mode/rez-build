@@ -1,0 +1,68 @@
+# -*- mode: snippet -*-
+# name: rez-build
+# key: rez-build
+# --
+import os
+import shutil
+import stat
+import sys
+from glob import glob
+import re
+import subprocess
+import logging
+import tarfile
+
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+
+def build(source_path, build_path, install_path, targets):
+
+    if targets is None:
+       targets = []
+
+    ###
+    # build
+    ###
+
+    payload_dir = os.environ['REZ_REPO_PAYLOAD_DIR']
+    version = os.environ['REZ_BUILD_PROJECT_VERSION']
+    # find downloaded tar file
+    tar_path = os.path.join(payload_dir, 'FILL_IN', 'FILL_IN_{0}.tar.gz'.format(version))
+
+    # extract tar file
+    tar_file = tarfile.open(tar_path, mode='r:gz')
+    logger.info('extracting: %s -> %s', tar_path, build_path)
+    tar_file.extractall(build_path)
+
+    # copy to build
+    for name in ('cmake',):
+        src = os.path.join(source_path, name)
+        dest = os.path.join(build_path, name)
+
+    if os.path.exists(dest):
+        shutil.rmtree(dest)
+
+    logger.info('copying: {0} -> {1}'.format(src, dest))
+    shutil.copytree(src, dest)
+    # dest = os.path.join(build_path, os.listdir(tmp_path)[0])
+
+    ###
+    # install
+    ###
+
+    if 'install' not in targets:
+        return
+       
+    if os.path.exists(install_path):
+        shutil.rmtree(install_path)
+
+    # Installing custom files
+    logger.info("installing to -> {} ".format(install_path))
+    
+    if os.path.exists(os.path.join(install_path, "FILL_IN")):
+       os.remove(os.path.join(install_path, "FILL_IN"))
+    if not os.path.exists(os.path.join(install_path, "FILL_IN")):
+        os.makedirs(os.path.join(install_path, "FILL_IN"))
+        shutil.copy(os.path.join(source_path, "FILL_IN"), os.path.join(install_path, "FILL_IN"))
