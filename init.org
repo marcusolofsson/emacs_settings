@@ -141,7 +141,7 @@
             auto-compile            ; automatically compile Emacs Lisp libraries
             cider                   ; Clojure Interactive Development Environment
             clang-format            ; Format code using clang-format.
-            company                 ; Modular text completion framework
+            company                 ; Modular text completion framework.
             company-ansible         ; Anaconda backend for company-mode
             company-cmake           ; company-mode completion back-end for CMake
             company-flx             ; flx hooks for company
@@ -152,6 +152,7 @@
             company-rtags           ; RTags backend for company
             company-statistics      ; Sort candidates using completion history.
             cmake-font-lock         ; Advanced, type aware, highlight support for CMake
+            cmake-ide               ; Calls CMake to find out include paths and other compiler flags
             cmake-mode              ; cmake editing mode
             cuda-mode               ; NVIDIA CUDA editing mode
             define-word             ; display the definition of word at point
@@ -225,7 +226,8 @@
             use-package             ; A use-package declaration for simplifying your .emacs
             yasnippet               ; Yet another snippet extension for Emacs.
             yaml-mode               ; Major mode for editing YAML files
-            which-key)))         ; Display available keybindings in popup
+            which-key               ; Display available keybindings in popup
+            zenburn-theme)))              ; Zenburn theme
     (ignore-errors ;; This package is only relevant for Mac OS X.
       (when (memq window-system '(mac ns))
         (push 'exec-path-from-shell packages)
@@ -433,7 +435,7 @@
     (eval-after-load 'auto-compile
       '((auto-compile-on-save-mode 1))))  ; compile .el files on save
 
-  (add-hook 'ediff-prepare-buffer-hook #'show-all)
+  (add-hook 'ediff-prepare-buffer-hook #'outline-show-all)
   #+END_SRC
 
 ** Visuals
@@ -446,16 +448,17 @@
   (require 'airline-themes)
   (load-theme 'airline-solarized-alternate-gui t)
   (load-theme 'spacemacs-dark t)
+  (load-theme 'zenburn t)
   (powerline-center-theme)
   #+END_SRC
 
-  =leuven= is my preferred light theme, but =monokai= makes a very nice
+  =zenburn= is my preferred light theme, but =monokai= makes a very nice
   dark theme. I want to be able to cycle between these.
 
   #+BEGIN_SRC emacs-lisp
   (defun cycle-themes ()
     "Returns a function that lets you cycle your themes."
-    (lexical-let ((themes '#1=(leuven spacemacs-dark . #1#)))
+    (lexical-let ((themes '#1=(zenburn spacemacs-dark . #1#)))
       (lambda ()
         (interactive)
         ;; Rotates the thme cycle and changes the current theme.
@@ -952,7 +955,7 @@
          (progn
            (setq bds (bounds-of-thing-at-point 'symbol))
            (setq pos1 (car bds) pos2 (cdr bds))))
-       (camelcase-region pos1 pos2)))
+       (fps/camelcase-region pos1 pos2)))
 
    ;; snakecase-region Given a region of text in camelCase format,
    ;; changes it to snake_case.
@@ -977,7 +980,7 @@
          (progn
            (setq bds (bounds-of-thing-at-point 'symbol))
            (setq pos1 (car bds) pos2 (cdr bds))))
-       (snakecase-region pos1 pos2)))
+       (fps/snakecase-region pos1 pos2)))
                                            ; camelcase and snakecase
 
    #+END_SRC
@@ -1247,10 +1250,6 @@
     (setq lisp-loop-forms-indentation   6
           lisp-simple-loop-indentation  2
           lisp-loop-keyword-indentation 6)
-    #+END_SRC
-
-    #+BEGIN_SRC emacs-lisp
-
     #+END_SRC
 
 *** Scheme
@@ -1530,7 +1529,7 @@
 ** Magit
    specific code for handling org-mode when in ediff
    #+BEGIN_SRC emacs-lisp
-   (add-hook 'ediff-prepare-buffer-hook #'show-all)
+   (add-hook 'ediff-prepare-buffer-hook #'outline-show-all)
    #+END_SRC
 
 * Key bindings
@@ -1639,7 +1638,7 @@
 
    ;;
    ;; rtags keybindings
-   (define-key custom-bindings-map (kbd "M-.") (function rtags-find-symbol-at-point))
+   (define-key custom-bindings-map (kbd "M-.") 'rtags-find-symbol-at-point)
    (define-key custom-bindings-map (kbd "M-,") (function rtags-find-references-at-point))
 
    (define-key custom-bindings-map (kbd "<C-M-tab>") 'clang-format-region)
