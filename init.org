@@ -122,9 +122,9 @@
 
   #+BEGIN_SRC emacs-lisp
   (setq package-archives
-    '(("gnu" . "http://elpa.gnu.org/packages/")
-    ("org" . "http://orgmode.org/elpa/")
+    '(("org" . "http://orgmode.org/elpa/")
     ("melpa" . "https://melpa.org/packages/")
+    ("gnu" . "http://elpa.gnu.org/packages/")
     ("melpa-stable" . "https://stable.melpa.org/packages/")
     ("marmalade" . "https://marmalade-repo.org/packages/")))
   #+END_SRC
@@ -208,7 +208,6 @@
             opencl-mode             ; Syntax coloring for opencl kernels.
             org                     ; Outline-based notes management and organizer
             org-projectile          ; Repository todo management for org-mode
-            origami                 ; Flexible text folding.
             paredit                 ; minor mode for editing parentheses
             pdf-tools               ; Emacs support library for PDF files
             plantuml-mode           ; Major mode for PlantUML
@@ -241,7 +240,7 @@
 
 ** Mac OS X
 
-  I run this configuration mostly on Mac OS X, so we need a couple of
+  I run this configuration also on Mac OS X, so we need a couple of
   settings to make things work smoothly. In the package section
   =exec-path-from-shell= is included (only if you're running OS X), this is
   to include environment-variables from the shell. It makes using Emacs
@@ -422,7 +421,7 @@
               global-git-gutter-mode       ; Show changes latest commit
               global-prettify-symbols-mode ; Greek letters should look greek
               golden-ratio-mode            ; Automatic resizing of windows
-              projectile-global-mode       ; Manage and navigate projects
+              projectile-mode       ; Manage and navigate projects
               recentf-mode                 ; Recently opened files
               yas-global-mode              ; Enable yasnippet
               show-paren-mode))            ; Highlight matching parentheses
@@ -611,8 +610,14 @@
   near the end of the configuration).
 
   #+BEGIN_SRC emacs-lisp
-  (require 'helm)
-  (require 'helm-config)
+  (use-package helm-config
+    :command (helm-get-sources helm-marked-candidates)
+    :ensure helm
+    :config
+    (progn
+      (helm-mode 1)))
+
+
 
   (setq helm-split-window-inside-p t
     helm-M-x-fuzzy-match t
@@ -627,7 +632,7 @@
       helm-grep-default-recurse-command
       "ack -H --no-group --no-color %e %p %f"))
 
-  (set-face-attribute 'helm-selection nil :background "cyan")
+  ;;(set-face-attribute 'helm-selection nil :background "cyan")
 
   (helm-mode 1)
   (helm-projectile-on)
@@ -834,9 +839,6 @@
   current project and feed it to rtags ans such things.
 
   #+BEGIN_SRC emacs-lisp
-  (use-package cmake-rez
-    :ensure t)
-
   (use-package cmake-ide
     :ensure t
     :config
@@ -1642,11 +1644,13 @@
    (define-key custom-bindings-map (kbd "M-,") (function rtags-find-references-at-point))
 
    (define-key custom-bindings-map (kbd "<C-M-tab>") 'clang-format-region)
-
-   (define-key origami-mode-map (kbd "C-c o c") 'origami-close-node)
-   (define-key origami-mode-map (kbd "C-c o o") 'origami-open-node)
-   (define-key origami-mode-map (kbd "C-c o C") 'origami-close-all-nodes)
-   (define-key origami-mode-map (kbd "C-c o O") 'origami-open-all-nodes)
+   ;;
+   ;; projectile
+   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+   ;; (define-key origami-mode-map (kbd "C-c o c") 'origami-close-node)
+   ;; (define-key origami-mode-map (kbd "C-c o o") 'origami-open-node)
+   ;; (define-key origami-mode-map (kbd "C-c o C") 'origami-close-all-nodes)
+   ;; (define-key origami-mode-map (kbd "C-c o O") 'origami-open-all-nodes)
    #+END_SRC
 
 ** Bindings for functions defined [[sec:defuns][above]]
