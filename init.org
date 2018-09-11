@@ -204,7 +204,6 @@
             move-text               ; Move current line or region with M-up or M-down.
             multiple-cursors        ; Multiple cursors for Emacs
             neotree                 ; A tree plugin like NerdTree for Vim
-            olivetti                ; Minor mode for a nice writing environment
             opencl-mode             ; Syntax coloring for opencl kernels.
             org                     ; Outline-based notes management and organizer
             org-projectile          ; Repository todo management for org-mode
@@ -213,7 +212,7 @@
             plantuml-mode           ; Major mode for PlantUML
             powerline               ; Rewrite of powerline
             projectile              ; Manage and navigate projects in Emacs easily
-            puppet-mode             ; Major mode for Puppet manifests
+            pygen                   ; generate python stubs.
             python-environment      ; virtualenv API for Emacs Lisp.
             rtags                   ; A front-end for rtags
             s                       ; The long lost Emacs string manipulation library.
@@ -286,11 +285,6 @@
     (add-hook 'after-init-hook #'global-flycheck-mode)
     (add-hook 'elpy-mode-hook 'flycheck-mode))
 
-  (use-package origami
-    :ensure t
-    :init
-    (add-hook 'after-init-hook 'global-origami-mode))
-
   (use-package neotree
     :ensure t)
 
@@ -298,6 +292,9 @@
     :ensure t)
 
   (use-package clang-format
+    :ensure t)
+
+  (use-package restclient
     :ensure t)
   #+END_SRC
 
@@ -421,7 +418,7 @@
               global-git-gutter-mode       ; Show changes latest commit
               global-prettify-symbols-mode ; Greek letters should look greek
               golden-ratio-mode            ; Automatic resizing of windows
-              projectile-mode       ; Manage and navigate projects
+              projectile-mode              ; Manage and navigate projects
               recentf-mode                 ; Recently opened files
               yas-global-mode              ; Enable yasnippet
               show-paren-mode))            ; Highlight matching parentheses
@@ -469,7 +466,7 @@
 
   #+BEGIN_SRC emacs-lisp
   (cond ((member "Source Code Pro" (font-family-list))
-          (set-face-attribute 'default nil :font "Source Code Pro-11"))
+          (set-face-attribute 'default nil :font "Source Code Pro-10"))
         ((member "Inconsolata" (font-family-list))
           (set-face-attribute 'default nil :font "Inconsolata-14")))
   #+END_SRC
@@ -559,6 +556,15 @@
   (setq display-time-load-average nil)
   #+END_SRC
 
+  Enabling some kind of breadcrumb is needed when doing lots of nested coding
+  So for know (since I can't figure out how to do this in proper way, eg. 
+  get the real breadcrumb from the language that is used in that buffer. Say 
+  python ("Object->Base->Foo->Bar->count") or in c++ ("fps::internal::Foo::Bar::count")
+
+  #+BEGIN_SRC emacs-lisp
+  (setq frame-title-format '(buffer-file-name "Emacs :  %b  ( %f )" "Emacs: %b"))
+  #+END_SRC
+
 ** PDF Tools
 
   [[https://github.com/politza/pdf-tools][PDF Tools]] makes a huge improvement on the built-in [[http://www.gnu.org/software/emacs/manual/html_node/emacs/Document-View.html][doc-view-mode]]; the only
@@ -588,6 +594,7 @@
     company-selection-wrap-around t
     company-transformers '(company-sort-by-occurrence
                             company-sort-by-backend-importance))
+    (company-quickhelp-mode)
   #+END_SRC
 
   Yasnippet is one of those things that I customize a lot so I have another
@@ -611,7 +618,7 @@
 
   #+BEGIN_SRC emacs-lisp
   (use-package helm-config
-    :command (helm-get-sources helm-marked-candidates)
+    :commands (helm-get-sources helm-marked-candidates)
     :ensure helm
     :config
     (progn
@@ -1507,14 +1514,19 @@
    (use-package company-jedi
                 :ensure t
                 :config
-                (setq jedi:environment-virtualenv (list (expand-file-name "~/.emacs.d/.python-environments")))
+                ;; (setq jedi:environment-virtualenv (list (expand-file-name "~/.emacs.d/.python-environments")))
                 (add-hook 'python-mode-hook 'jedi:setup)
                 (setq jedi:complete-on-dot t)
                 (setq jedi:use-shortcuts t)
-                (add-hook 'python-mode-hook 'jedi:setup)
-                (defun config/python-load-hook ()
+                ;; (add-hook 'python-mode-hook 'jedi:setup)
+                (defun fps/python-load-hook ()
                   (add-to-list 'company-backends 'company-jedi))
-                (add-hook 'python-mode-hook 'config/python-load-hook))
+                (add-hook 'python-mode-hook 'fps/python-load-hook))
+
+   (use-package pygen
+     :ensure t
+     :config
+     (add-hook 'python-mode-hook 'pygen-mode))
    #+END_SRC
 
 ** Haskell
