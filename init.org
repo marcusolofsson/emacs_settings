@@ -277,11 +277,13 @@
     :ensure t
     :init
     (elpy-enable)
+    (setq elpy-rpc-ignored-buffer-size 500000 )
     (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)))
 
   (use-package flycheck
     :ensure t
     :init
+    (setq flycheck-checker-error-threshold 2000)
     (add-hook 'after-init-hook #'global-flycheck-mode)
     (add-hook 'elpy-mode-hook 'flycheck-mode))
 
@@ -798,6 +800,10 @@
     :ensure t
     :config
     (flycheck-plantuml-setup))
+
+  (use-package org-jira
+    :init
+    (setq jiralib-url "https://screen9.atlassian.net"))
   #+END_SRC
 
 ** RTags
