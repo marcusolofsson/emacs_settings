@@ -151,6 +151,7 @@
             company-go              ; company-mode backend for Go (using gocode)
             company-rtags           ; RTags backend for company
             company-statistics      ; Sort candidates using completion history.
+            company-quickhelp       ; Popup documentation for completion candidates.
             cmake-font-lock         ; Advanced, type aware, highlight support for CMake
             cmake-ide               ; Calls CMake to find out include paths and other compiler flags
             cmake-mode              ; cmake editing mode
