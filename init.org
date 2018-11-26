@@ -152,7 +152,7 @@
             company-rtags           ; RTags backend for company
             company-statistics      ; Sort candidates using completion history.
             company-quickhelp       ; Popup documentation for completion candidates.
-            cmake-font-lock         ; Advanced, type aware, highlight support for CMake
+            cmake-font-lock         ; Advanced, type aware, highlight support for CMake.
             cmake-ide               ; Calls CMake to find out include paths and other compiler flags
             cmake-mode              ; cmake editing mode
             cuda-mode               ; NVIDIA CUDA editing mode
@@ -299,6 +299,15 @@
 
   (use-package restclient
     :ensure t)
+
+  (use-package gdb-mi
+    :quelpa (gdb-mi
+             :fetcher git
+             :url "https://github.com/wierdNox/emacs-gdb.git"
+             :files ("*.el" "*.c" "*.h" "Makefile"))
+    :init
+    (fmakunbound 'gdb)
+    (fmakunbound 'gdb-enable-debug))
   #+END_SRC
 
 ** Sane defaults
@@ -1594,8 +1603,9 @@
   (define-key company-active-map (kbd "C-d") 'company-show-doc-buffer)
   (define-key company-active-map (kbd "C-n") 'company-select-next)
   (define-key company-active-map (kbd "C-p") 'company-select-previous)
-  (define-key company-active-map (kbd "<tab>") 'company-complete)
-
+  ;; (define-key company-active-map (kbd "<tab>") 'company-complete)
+  (define-key company-active-map (kbd "M-n") nil)
+  (define-key company-active-map (kbd "M-p") nil)
   (define-key company-mode-map (kbd "C-:") 'helm-company)
   (define-key company-active-map (kbd "C-:") 'helm-company)
   #+END_SRC
