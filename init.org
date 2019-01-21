@@ -151,7 +151,7 @@
   ;;           company-rtags           ; RTags backend for company
   ;;           company-statistics      ; Sort candidates using completion history.
   ;;           company-quickhelp       ; Popup documentation for completion candidates.
-  ;;           cmake-font-lock         ; Advanced, type aware, highlight support for CMake
+  ;;           cmake-font-lock         ; Advanced, type aware, highlight support for CMake.
   ;;           cmake-ide               ; Calls CMake to find out include paths and other compiler flags
   ;;           cmake-mode              ; cmake editing mode
   ;;           cuda-mode               ; NVIDIA CUDA editing mode
@@ -302,14 +302,14 @@
   (use-package restclient
     :ensure t)
 
-  (use-package gdb-mi
-    :quelpa (gdb-mi
-             :fetcher git
-             :url "https://github.com/wierdNox/emacs-gdb.git"
-             :files ("*.el" "*.c" "*.h" "Makefile"))
-    :init
-    (fmakunbound 'gdb)
-    (fmakunbound 'gdb-enable-debug))
+  ;; (use-package gdb-mi
+  ;;   :quelpa (gdb-mi
+  ;;            :fetcher git
+  ;;            :url "https://github.com/wierdNox/emacs-gdb.git"
+  ;;            :files ("*.el" "*.c" "*.h" "Makefile"))
+  ;;   :init
+  ;;   (fmakunbound 'gdb)
+  ;;   (fmakunbound 'gdb-enable-debug))
   #+END_SRC
 
 ** Sane defaults
@@ -585,6 +585,19 @@
   (setq frame-title-format '(buffer-file-name "Emacs :  %b  ( %f )" "Emacs: %b"))
   #+END_SRC
 
+  To see which tabbing I'm in I use the highlight-char package.
+
+  #+BEGIN_SRC emacs-lisp
+
+  (require 'highlight-chars)
+
+  (use-package highlight-indent-guides
+    :ensure t
+    :config
+    (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
+    (setq highlight-indent-guides-method 'column))
+  #+END_SRC
+  
 ** PDF Tools
 
   [[https://github.com/politza/pdf-tools][PDF Tools]] makes a huge improvement on the built-in [[http://www.gnu.org/software/emacs/manual/html_node/emacs/Document-View.html][doc-view-mode]]; the only
