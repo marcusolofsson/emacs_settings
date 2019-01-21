@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: import pprint
+# key: impprint
+# --
+from pprint import pprint
