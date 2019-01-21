@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: swagger item
+# key: item
+# --
+"$0": {
+      "type": "$1",
+      "description": ""
+}

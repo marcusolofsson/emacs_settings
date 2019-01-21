@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: swagger item with sub
+# key: itemsub
+# --
+"$1": {
+      "type": "$2",
+      "description": "",
+      "properties": {
+            $3
+      }
+}
