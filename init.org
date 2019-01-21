@@ -301,6 +301,15 @@
 
   (use-package restclient
     :ensure t)
+
+  (use-package gdb-mi
+    :quelpa (gdb-mi
+             :fetcher git
+             :url "https://github.com/wierdNox/emacs-gdb.git"
+             :files ("*.el" "*.c" "*.h" "Makefile"))
+    :init
+    (fmakunbound 'gdb)
+    (fmakunbound 'gdb-enable-debug))
   #+END_SRC
 
 ** Sane defaults
@@ -1602,8 +1611,9 @@
   (define-key company-active-map (kbd "C-d") 'company-show-doc-buffer)
   (define-key company-active-map (kbd "C-n") 'company-select-next)
   (define-key company-active-map (kbd "C-p") 'company-select-previous)
-  (define-key company-active-map (kbd "<tab>") 'company-complete)
-
+  ;; (define-key company-active-map (kbd "<tab>") 'company-complete)
+  (define-key company-active-map (kbd "M-n") nil)
+  (define-key company-active-map (kbd "M-p") nil)
   (define-key company-mode-map (kbd "C-:") 'helm-company)
   (define-key company-active-map (kbd "C-:") 'helm-company)
   #+END_SRC
