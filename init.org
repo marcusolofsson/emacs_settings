@@ -1,3 +1,4 @@
+
 #+TITLE: Emacs Configuration file
 #+AUTHOR: Marcus Olofsson
 #+BABEL: :cache yes
@@ -102,6 +103,23 @@
         (when (file-exists-p private-file)
           (load-file private-file)))))
   #+END_SRC
+   
+** Global variables
+   Trying out to use ycmd instead of RTags with cmake-ide (somewhat clumsy)
+
+   #+BEGIN_SRC emacs-lisp
+   (defvar conf:ycmd-server-command '("python3" "~/bin/ycmd/ycmd"))
+   (defvar conf:ycmd-extra-conf-whitelist '("~/.ycm_extra_conf.py"))
+   (defvar conf:ycmd-global-config "~/.ycm_extra_conf.py")
+   (defvar conf:ycmd-python-binary-path "/usr/local/bin/python3")
+   (defvar conf:use-ycmd-goto t)
+
+   (defvar conf:jupyter-location (executable-find "jupyter"))
+   (defvar conf:jupyter-start-dir "/Users/marcus")
+   (defvar conf:compile-command "clang++ -Wall -Wextra -std=c++14")
+   (defvar conf:force-server-start t)
+
+   #+END_SRC
 
 ** Packages
 
@@ -120,7 +138,7 @@
   Packages can be fetched from different mirrors, [[http://melpa.milkbox.net/#/][melpa]] is the largest
   archive and is well maintained.
 
-  #+BEGIN_SRC emacs-lisp
+  #+begin_SRC emacs-lisp
   (setq package-archives
     '(("org" . "http://orgmode.org/elpa/")
     ("melpa" . "https://melpa.org/packages/")
@@ -132,111 +150,109 @@
   installed. To ensure we install missing packages if they are missing.
 
   #+BEGIN_SRC emacs-lisp
-  ;; (let* ((package--builtins nil)
-  ;;       (packages
-  ;;         '(airline-themes          ; Airline theme.
-  ;;           all-the-icons           ; A library for inserting Developer icons.
-  ;;           ansible                 ; Ansible minor mode.
-  ;;           auto-compile            ; automatically compile Emacs Lisp libraries
-  ;;           cider                   ; Clojure Interactive Development Environment
-  ;;           clang-format            ; Format code using clang-format.
-  ;;           company                 ; Modular text completion framework.
-  ;;           company-ansible         ; Anaconda backend for company-mode
-  ;;           company-cmake           ; company-mode completion back-end for CMake
-  ;;           company-flx             ; flx hooks for company
-  ;;           company-irony           ; irony hooks for company
-  ;;           company-irony-c-headers ; irony-headers hooks for compay
-  ;;           company-jedi            ; company-mode completion back-end for Python JEDI
-  ;;           company-go              ; company-mode backend for Go (using gocode)
-  ;;           company-rtags           ; RTags backend for company
-  ;;           company-statistics      ; Sort candidates using completion history.
-  ;;           company-quickhelp       ; Popup documentation for completion candidates.
-  ;;           cmake-font-lock         ; Advanced, type aware, highlight support for CMake.
-  ;;           cmake-ide               ; Calls CMake to find out include paths and other compiler flags
-  ;;           cmake-mode              ; cmake editing mode
-  ;;           cuda-mode               ; NVIDIA CUDA editing mode
-  ;;           define-word             ; display the definition of word at point
-  ;;           demangle-mode           ; Automatically demangle C++ symbols
-  ;;           diminish                ; Diminished modes from modeline
-  ;;           dired+                  ; Extensions to Dired.
-  ;;           docker                  ; Emacs interface to Docker.
-  ;;           docker-compose-mode     ; Major mode for editing docker-compose files.
-  ;;           dockerfile-mode         ; Major mode for editing Docker's Dockerfiles.
-  ;;           doctags                 ; Generation of tags documentation in Doxygen syntax.
-  ;;           doom-modeline
-  ;;           doom-themes
-  ;;           duplicate-thing         ; Duplicate current line & selection
-  ;;           drag-stuff              ; Drag stuff around in Emacs
-  ;;           ein                     ; Emacs IPython Notebook.
-  ;;           elpy                    ; On-the-fly syntax checking
-  ;;           eredis                  ; eredis, a Redis client in emacs lisp
-  ;;           expand-region           ; Increase selected region by semantic units
-  ;;           f                       ; Modern API for working with files and directories
-  ;;           flycheck                ; On-the-fly syntax checking
-  ;;           flycheck-irony          ; Flycheck: C/C++ support via Irony
-  ;;           flycheck-plantuml       ; Integrate plantuml with flycheck
-  ;;           flycheck-pyflakes       ; Support pyflakes in flycheck
-  ;;           flycheck-rtags          ; RTags Flycheck integration
-  ;;           flymake-puppet          ; An Emacs flymake handler for syntax-checking puppet using uppet-lint
-  ;;           focus                   ; Dim color of text in surrounding sections
-  ;;           irony                   ; C/C++ minor mode powered by libclang
-  ;;           itail                   ; An interactive tail mode that allows you to filter the ail with unix pipes.
-  ;;           geiser                  ; GNU Emacs and Scheme talk to each other
-  ;;           git-gutter-fringe       ; Fringe version of git-gutter.el
-  ;;           golden-ratio            ; Automatic resizing windows to golden ratio
-  ;;           haskell-mode            ; A Haskell editing mode
-  ;;           helm                    ; Incremental and narrowing framework
-  ;;           helm-c-yasnippet        ; helm source for yasnippet.el
-  ;;           helm-company            ; Helm interface for company-mode
-  ;;           helm-flycheck           ; Show flycheck errors with helm
-  ;;           helm-flx                ; Sort helm candidates by flx score
-  ;;           helm-projectile         ; Helm integration for Projectile
-  ;;           helm-swoop              ; Efficiently hopping squeezed lines
-  ;;           helm-rtags              ; A front-end for rtags
-  ;;           helm-tramp              ; Tramp helm interface for ssh, docker, vagrant.
-  ;;           jedi-core               ; Common code of jedi.el and company-jedi.el
-  ;;           js2-mode                ; Improved JavaScript editing mode
-  ;;           json-mode               ; Major mode for editing JSON files
-  ;;           magit                   ; control Git from Emacs
-  ;;           magit-filenotify        ; Refresh status buffer when git tree changes
-  ;;           magit-lfs               ; This plugin is magit integrated frontend for Git LFS
-  ;;           markdown-mode           ; Emacs Major mode for Markdown-formatted files
-  ;;           markdown-preview-mode   ; markdown realtime preview minor mode.
-  ;;           material-theme          ; A Theme based on Google Material Design
-  ;;           move-text               ; Move current line or region with M-up or M-down.
-  ;;           multiple-cursors        ; Multiple cursors for Emacs
-  ;;           neotree                 ; A tree plugin like NerdTree for Vim
-  ;;           opencl-mode             ; Syntax coloring for opencl kernels.
-  ;;           org                     ; Outline-based notes management and organizer
-  ;;           org-projectile          ; Repository todo management for org-mode
-  ;;           paredit                 ; minor mode for editing parentheses
-  ;;           pdf-tools               ; Emacs support library for PDF files
-  ;;           plantuml-mode           ; Major mode for PlantUML
-  ;;           powerline               ; Rewrite of powerline
-  ;;           projectile              ; Manage and navigate projects in Emacs easily
-  ;;           pygen                   ; generate python stubs.
-  ;;           python-environment      ; virtualenv API for Emacs Lisp.
-  ;;           rtags                   ; A front-end for rtags
-  ;;           s                       ; The long lost Emacs string manipulation library.
-  ;;           smart-mode-line         ; A color coded smart mode-line.
-  ;;           spacemacs-theme         ; Color theme with a dark and light versions
-  ;;           transpose-frame         ; Transpose windows arrangement in a frame
-  ;;           try                     ; Try out Emacs packages
-  ;;           undo-tree               ; Treat undo history as a tree
-  ;;           use-package             ; A use-package declaration for simplifying your .emacs
-  ;;           yasnippet               ; Yet another snippet extension for Emacs.
-  ;;           yaml-mode               ; Major mode for editing YAML files
-  ;;           which-key               ; Display available keybindings in popup
-  ;;           zenburn-theme)))              ; Zenburn theme
-  ;;   (ignore-errors ;; This package is only relevant for Mac OS X.
-  ;;     (when (memq window-system '(mac ns))
-  ;;       (push 'exec-path-from-shell packages)
-  ;;       (push 'reveal-in-osx-finder packages))
-  ;;         (let ((packages (remove-if 'package-installed-p packages)))
-  ;;           (when packages
-  ;;             ;; Install uninstalled packages
-  ;;             (package-refresh-contents)
-  ;;             (mapc 'package-install packages)))))
+  (let* ((package--builtins nil)
+        (packages
+          '(airline-themes          ; Airline theme.
+            all-the-icons           ; A library for inserting Developer icons.
+            ansible                 ; Ansible minor mode.
+            auto-compile            ; automatically compile Emacs Lisp libraries
+            cider                   ; Clojure Interactive Development Environment
+            clang-format            ; Format code using clang-format.
+            company                 ; Modular text completion framework.
+            company-ansible         ; Anaconda backend for company-mode
+            company-cmake           ; company-mode completion back-end for CMake
+            company-flx             ; flx hooks for company
+            company-irony           ; irony hooks for company
+            company-irony-c-headers ; irony-headers hooks for compay
+            company-jedi            ; company-mode completion back-end for Python JEDI
+            company-go              ; company-mode backend for Go (using gocode)
+            company-rtags           ; RTags backend for company
+            company-statistics      ; Sort candidates using completion history.
+            company-quickhelp       ; Popup documentation for completion candidates.
+            cmake-font-lock         ; Advanced, type aware, highlight support for CMake.
+            cmake-ide               ; Calls CMake to find out include paths and other compiler flags
+            cmake-mode              ; cmake editing mode
+            cuda-mode               ; NVIDIA CUDA editing mode
+            define-word             ; display the definition of word at point
+            demangle-mode           ; Automatically demangle C++ symbols
+            diminish                ; Diminished modes from modeline
+            docker                  ; Emacs interface to Docker.
+            docker-compose-mode     ; Major mode for editing docker-compose files.
+            dockerfile-mode         ; Major mode for editing Docker's Dockerfiles.
+            doctags                 ; Generation of tags documentation in Doxygen syntax.
+            doom-modeline
+            doom-themes
+            duplicate-thing         ; Duplicate current line & selection
+            drag-stuff              ; Drag stuff around in Emacs
+            ein                     ; Emacs IPython Notebook.
+            elpy                    ; On-the-fly syntax checking
+            eredis                  ; eredis, a Redis client in emacs lisp
+            expand-region           ; Increase selected region by semantic units
+            f                       ; Modern API for working with files and directories
+            flycheck                ; On-the-fly syntax checking
+            flycheck-irony          ; flycheck: c/C++ support via Irony
+            flycheck-plantuml       ; Integrate plantuml with flycheck
+            flycheck-pyflakes       ; Support pyflakes in flycheck
+            flycheck-rtags          ; RTags Flycheck integration
+            flymake-puppet          ; An Emacs flymake handler for syntax-checking puppet using uppet-lint
+            focus                   ; Dim color of text in surrounding sections
+            irony                   ; C/C++ minor mode powered by libclang
+            itail                   ; An interactive tail mode that allows you to filter the ail with unix pipes.
+            geiser                  ; GNU Emacs and Scheme talk to each other
+            git-gutter-fringe       ; Fringe version of git-gutter.el
+            golden-ratio            ; Automatic resizing windows to golden ratio
+            haskell-mode            ; A Haskell editing mode
+            ;; helm                    ; Incremental and narrowing framework
+            ;; helm-c-yasnippet        ; helm source for yasnippet.el
+            ;; helm-company            ; Helm interface for company-mode
+            ;; helm-flycheck           ; Show flycheck errors with helm
+            ;; helm-flx                ; Sort helm candidates by flx score
+            ;; helm-projectile         ; Helm integration for Projectile
+            ;; helm-swoop              ; Efficiently hopping squeezed lines
+            ;; helm-tramp              ; Tramp helm interface for ssh, docker, vagrant.
+            jedi-core               ; Common code of jedi.el and company-jedi.el
+            js2-mode                ; Improved JavaScript editing mode
+            json-mode               ; Major mode for editing JSON files
+            magit                   ; control Git from Emacs
+            magit-filenotify        ; Refresh status buffer when git tree changes
+            magit-lfs               ; This plugin is magit integrated frontend for Git LFS
+            markdown-mode           ; Emacs Major mode for Markdown-formatted files
+            markdown-preview-mode   ; markdown realtime preview minor mode.
+            material-theme          ; A Theme based on Google Material Design
+            move-text               ; Move current line or region with M-up or M-down.
+            multiple-cursors        ; Multiple cursors for Emacs
+            neotree                 ; A tree plugin like NerdTree for Vim
+            opencl-mode             ; Syntax coloring for opencl kernels.
+            org                     ; Outline-based notes management and organizer
+            org-projectile          ; Repository todo management for org-mode
+            paredit                 ; minor mode for editing parentheses
+            pdf-tools               ; Emacs support library for PDF files
+            plantuml-mode           ; Major mode for PlantUML
+            powerline               ; Rewrite of powerline
+            projectile              ; Manage and navigate projects in Emacs easily
+            pygen                   ; generate python stubs.
+            python-environment      ; virtualenv API for Emacs Lisp.
+            rtags                   ; A front-end for rtags
+            s                       ; The long lost Emacs string manipulation library.
+            smart-mode-line         ; A color coded smart mode-line.
+            spacemacs-theme         ; Color theme with a dark and light versions
+            transpose-frame         ; Transpose windows arrangement in a frame
+            try                     ; Try out Emacs packages
+            undo-tree               ; Treat undo history as a tree
+            use-package             ; A use-package declaration for simplifying your .emacs
+            yasnippet               ; Yet another snippet extension for Emacs.
+            yaml-mode               ; Major mode for editing YAML files
+            which-key               ; Display available keybindings in popup
+            zenburn-theme)))              ; Zenburn theme
+    (ignore-errors ;; This package is only relevant for Mac OS X.
+      (when (memq window-system '(mac ns))
+        (push 'exec-path-from-shell packages)
+        (push 'reveal-in-osx-finder packages))
+          (let ((packages (remove-if 'package-installed-p packages)))
+            (when packages
+              ;; Install uninstalled packages
+              (package-refresh-contents)
+              (mapc 'package-install packages)))))
   #+END_SRC
 
 ** Mac OS X
@@ -258,6 +274,22 @@
   #+END_SRC
 
 ** Require
+
+   The =load-path= specifies where Emacs should look for =.el=-files (or
+   Emacs lisp files). I have a directory called =site-lisp= where I keep all
+   extensions that have been installed manually (these are mostly my own
+   projects).
+  #+BEGIN_SRC emacs-lisp
+    (let ((default-directory (concat user-emacs-directory "site-lisp/")))
+      (when (file-exists-p default-directory)
+        (setq load-path
+          (append
+            (let ((load-path (copy-sequence load-path)))
+              (normal-top-level-add-subdirs-to-load-path)) load-path))))
+
+    (add-to-list 'load-path (concat user-emacs-directory "site-lisp"))
+  #+END_SRC
+
 
   Some features are not loaded by default to minimize initialization time,
   so they have to be required (or loaded, if you will). =require=-calls
@@ -285,7 +317,7 @@
   (use-package flycheck
     :ensure t
     :init
-    (setq flycheck-checker-error-threshold 2000)
+    (setq flycheck-checker-error-threshold 10000)
     (add-hook 'after-init-hook #'global-flycheck-mode)
     (add-hook 'elpy-mode-hook 'flycheck-mode))
 
@@ -302,14 +334,8 @@
   (use-package restclient
     :ensure t)
 
-  ;; (use-package gdb-mi
-  ;;   :quelpa (gdb-mi
-  ;;            :fetcher git
-  ;;            :url "https://github.com/wierdNox/emacs-gdb.git"
-  ;;            :files ("*.el" "*.c" "*.h" "Makefile"))
-  ;;   :init
-  ;;   (fmakunbound 'gdb)
-  ;;   (fmakunbound 'gdb-enable-debug))
+  (use-package async
+    :ensure t)
   #+END_SRC
 
 ** Sane defaults
@@ -332,34 +358,39 @@
     (setq mac-pass-command-to-system nil))
   #+END_SRC
 
+  By default Emacs triggers garbage collection at ~0.8MB which is not a lot
+  and makes startup slower. Since any modern machine has probably more that 64MB
+  of memory we'll increas the gc during init.
+
+  #+BEGIN_SRC emacs-lisp
+  (setq gc-cons-threshold 64000000)
+
+  (add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold 800000)))
+  #+END_SRC
+
+
+  Lets start emacs server if it isnt already running.
+
+  #+BEGIN_SRC emacs-lisp
+  (when (or conf:force-server-start
+            (and (fboundp 'server-running-p) (not (server-running-p))))
+    (server-start))
+  #+END_SRC
+
+
   Some variables are buffer-local, so changing them using =setq= will only
   change them in a single buffer. Using =setq-default= we change the
   buffer-local variable's default value.
 
   #+BEGIN_SRC emacs-lisp
-  (setq-default fill-column 119                   ; Maximum line width
+  (setq-default fill-column 110                   ; Maximum line width
                 truncate-lines t                  ; Don't fold lines
                 indent-tabs-mode nil              ; Use spaces instead of tabs
                 split-width-threshold 100         ; Split verticly by default
                 auto-fill-function 'do-auto-fill) ; Auto-fill-mode everywhere
   #+END_SRC
 
-  The =load-path= specifies where Emacs should look for =.el=-files (or
-  Emacs lisp files). I have a directory called =site-lisp= where I keep all
-  extensions that have been installed manually (these are mostly my own
-  projects).
-
-  #+BEGIN_SRC emacs-lisp
-  (let ((default-directory (concat user-emacs-directory "site-lisp/")))
-    (when (file-exists-p default-directory)
-      (setq load-path
-        (append
-          (let ((load-path (copy-sequence load-path)))
-            (normal-top-level-add-subdirs-to-load-path)) load-path))))
-
-  (add-to-list 'load-path (concat user-emacs-directory "site-lisp"))
-  #+END_SRC
-
+  
   Answering /yes/ and /no/ to each question from Emacs can be tedious, a
   single /y/ or /n/ will suffice.
 
@@ -404,6 +435,13 @@
   (add-hook 'doc-view-mode-hook 'auto-revert-mode)
   #+END_SRC
 
+  Check on save whether the file edited contains a shebang, if yes, 
+  make it executable.
+
+  #+BEGIN_SRC emacs-lisp
+  (add-hook 'after-save-hook #'executable-make-buffer-file-executable-if-script-p)
+  #+END_SRC
+
 ** Modes
 
   There are some modes that are enabled by default that I don't find
@@ -440,7 +478,7 @@
     (funcall mode 1))
 
   (add-hook 'after-init-hook 'global-company-mode)
-  (setq projectile-completion-system 'helm)
+  (setq projectile-completion-system 'ivy)
   (when (version< emacs-version "24.4")
     (eval-after-load 'auto-compile
       '((auto-compile-on-save-mode 1))))  ; compile .el files on save
@@ -456,14 +494,14 @@
 
   #+BEGIN_SRC emacs-lisp
   (require 'airline-themes)
-  ;; (load-theme 'airline-solarized-alternate-gui t)
+  (load-theme 'airline-solarized-alternate-gui t)
   (load-theme 'spacemacs-dark t)
   (load-theme 'zenburn t)
   (load-theme 'doom-spacegrey t)
   (use-package doom-modeline
     :ensure t
     :defer t
-    :hook (after-init . doom-modeline-init)
+    :hook (after-init . doom-modeline-mode)
     :config (setq doom-modeline-buffer-file-name-style 'truncate-upto-project)
     (setq doom-modeline-python-executable "python"))
   #+END_SRC
@@ -474,7 +512,7 @@
   #+BEGIN_SRC emacs-lisp
   (defun cycle-themes ()
     "Returns a function that lets you cycle your themes."
-    (lexical-let ((themes '#1=(zenburn doom-spacegrey spacemacs-dark . #1#)))
+    (lexical-let ((themes '#1=(zenburn doom-spacegrey airline-solarized-alternate-gui spacemacs-dark . #1#)))
       (lambda ()
         (interactive)
         ;; Rotates the thme cycle and changes the current theme.
@@ -637,7 +675,7 @@
   (setq yas-snippet-dirs '(concat user-emacs-directory "snippets"))
   #+END_SRC
 
-** Helm
+** COMMENT Helm
   I've got a feeling I'm missing out on something by not using [[https://github.com/emacs-helm/helm][helm]].
   I will [[http://tuhdo.github.io/helm-intro.html][this excellent tutorial]] as a
   starting point, along with some of the suggested configurations.
@@ -666,11 +704,12 @@
     helm-move-to-line-cycle-in-source t
     projectile-completion-system 'helm)
 
-  (when (executable-find "ack")
-    (setq helm-grep-default-command
-      "ack -Hn --no-group --no-color %e %p %f"
-      helm-grep-default-recurse-command
-      "ack -H --no-group --no-color %e %p %f"))
+
+  ;; (when (executable-find "ack")
+  ;;   (setq helm-grep-default-command
+  ;;     "ack -Hn --no-group --no-color %e %p %f"
+  ;;     helm-grep-default-recurse-command
+  ;;     "ack -H --no-group --no-color %e %p %f"))
 
   ;;(set-face-attribute 'helm-selection nil :background "cyan")
 
@@ -831,10 +870,6 @@
     :ensure t
     :config
     (flycheck-plantuml-setup))
-
-  (use-package org-jira
-    :init
-    (setq jiralib-url "https://screen9.atlassian.net"))
   #+END_SRC
 
 ** RTags
@@ -851,6 +886,7 @@
     :init
     (setq rtags-completions-enabled t)
     (setq rtags-autostart-diagnostics t)
+    (setq rtags-verify-protocol-version nil)
     (rtags-enable-standard-keybindings))
 
   (use-package company-rtags
@@ -858,10 +894,10 @@
     :config
     (push 'company-rtags company-backends))
 
-  (use-package helm-rtags
-    :ensure t
-    :init
-    (setq rtags-use-helm t))
+  ;; (use-package helm-rtags
+  ;;   :ensure t
+  ;;   :init
+  ;;   (setq rtags-use-helm t))
 
   (defun fps/flycheck-rtags-usage-setup ()
     (flycheck-select-checker 'rtags)
@@ -878,6 +914,122 @@
 
   #+END_SRC
 
+** Ivy
+   I've decided to test out ivy so here is the configs for that.
+   
+   #+BEGIN_SRC emacs-lisp
+   (use-package ivy
+     :ensure t
+     :diminish ivy-mode
+     :commands (ivy-mode)
+     :config
+     (ivy-mode t)
+     (setq ivy-use-virtual-buffers t)
+     (setq enable-recursive-minibuffers t)
+     (setq ivy-wrap t)
+     (global-set-key (kbd "C-c C-r") 'ivy-resume)
+     (setq ivy-count-format "%d/%d")
+     )
+
+   (use-package counsel
+     :ensure t
+     :bind (("M-x" . counsel-M-x)
+            ("C-x C-f" . counsel-find-file)
+            ("<f1> f" . counsel-describe-function)
+            ("C-c g" . counsel-git-grep)
+            ("C-c j" . counsel-git)
+            ("C-c k" . counsel-ag)
+            ("C-c r" . counsel-rg)
+            ("C-x l" . counsel-locate)
+            :map minibuffer-local-map
+            ("C-r" . counsel-minibuffer-add))
+     :config
+     (if (executable-find "rg")
+         (setq counsel-grep-base-command
+               "rg -i -M 120 --no-heading --line-number --color never '%s %s"
+               counsel-rg-base-command
+               "rg -i -M 120 --no-heading --line-number --color never '%s' .")
+       (warn "\nWARNING: Could not find ripgrep exec")))
+
+   (use-package counsel-etags
+     :ensure t
+     :init
+     (eval-when-compile
+       (declare-function counsel-etags-virtual-update-tags "counsel-etags.el")
+       (declare-function counsel-etags-guess-program "counsel-etags.el")
+       (declare-function counsel-etags-locate-tags-file "counsel-etags.el"))
+     :bind (
+            ("M-." . counsel-etags-find-tag-at-point)
+            ("M-t" . counsel-etags-grep-symbol-at-point))
+     :config (setq counsel-etags-max-file-size 800)
+     (add-to-list 'counsel-etags-ignore-directories '"build*")
+     (add-to-list 'counsel-etags-ignore-directories '".vscode")
+     (add-to-list 'counsel-etags-ignore-filenames '".clang-format")
+     (setq tags-revert-without-query t)
+     (setq large-file-warning-threshold nil)
+     (setq counsel-etags-update-interval 180)
+     (add-hook
+      'prog-mode-hook
+      (lambda () (add-hook 'after-save-hook
+                      (lambda ()
+                        (counsel-etags-virtual-update-tags)))))
+     (defun my-scan-dir (src-dir &optional force)
+       "Create tags file from SRC-DIR. 
+        If FORCE is t ,the command is executed without checking the timer"
+       (let* ((find-pg (or
+                        counsel-etags-find-program
+                        (counsel-etags-guess-program "find")))
+              (ctags-pg (or
+                         counsel-etags-tags-program
+                         (format "%s -e -L" (counsel-etags-guess-program
+                                             "ctags"))))
+              (default-directory src-dir)
+              (cmd (format
+                    "%s . \\( %s \\) -prune -o -type f -not -size +%sk %s | %s -"
+                    find-pg
+                    (mapconcat
+                     (lambda (p)
+                       (format "-iwholename \"*%s*\"" p))
+                     counsel-etags-ignore-directories " -or ")
+                    counsel-etags-max-file-size
+                    (mapconcat (lambda (n)
+                                 (format "-not -name \"%s\"" n))
+                               counsel-etags-ignore-filenames " ")
+                    ctags-pg))
+              (tags-file (concat (file-name-as-directory src-dir) "TAGS"))
+              (doit (or force (not (file-exists-p tags-file)))))
+         (when doit
+           (message "%s at %s" cmd default-directory)
+           (async-shell-command cmd)
+           (visit-tags-table tags-file t))))
+     (setq counsel-etags-update-tags-backend
+           (lambda ()
+             (interactive)
+             (let* ((tags-file (counsel-etags-locate-tags-file)))
+               (when tags-file
+                 (my-scan-dir (file-name-directory tags-file) t)
+                 (run-hook-with-args
+                  'counsel-etags-after-update-tags-hook tags-file)
+                 (unless counsel-etags-quiet-when-updating-tags
+                   (message "%s is updated!" tags-file)))))
+           )
+     )
+
+   (use-package counsel-projectile
+     :ensure t
+     :after projectile
+     :bind (("C-x M-f" . counsel-projectile-find-file))
+     :init
+     (eval-when-compile
+       (declare-function counsel-projectile-mode "counsel-projectile.el"))
+     :config
+     (counsel-projectile-mode))
+
+   (use-package swiper
+     :ensure t
+     :bind (("C-s" . swiper)
+            ("C-r" . swiper)))
+   #+END_SRC
 ** CMake-IDE
   I use the brilliant cmake-ide to auto-generate code from
   current project and feed it to rtags ans such things.
@@ -1332,9 +1484,9 @@
      (c-set-offset 'substatement-open 0)
      (setq c-tab-always-indent t)
      (setq c-basic-offset 4)
-     (setq c-indent-level 2)
+     (setq c-indent-level 4)
      (setq tab-stop-list '(2 4 8 12 16 20 24 28 32 36 40 44 48 52 56 60))
-     (setq tab-width 2)
+     (setq tab-width 4)
      (setq indent-tabs-mode nil))
 
    (add-hook 'c-mode-common-hook 'fps/c-indentation-hook)
@@ -1354,54 +1506,57 @@
    I'm using irony to help me when coding in c++ 
 
    #+BEGIN_SRC emacs-lisp
-   (add-hook 'c++-mode-hook 'irony-mode)
-   (add-hook 'c-mode-hook 'irony-mode)
-   (add-hook 'objc-mode-hook 'irony-mode)
+   ;; (add-hook 'c++-mode-hook 'irony-mode)
+   ;; (add-hook 'c-mode-hook 'irony-mode)
+   ;; (add-hook 'objc-mode-hook 'irony-mode)
 
-   (defun fps/c-irony-completion-hook () 
-     (define-key irony-mode-map [remap completion-at-point]
-       'irony-completion-at-point-async)
-     (define-key irony-mode-map [remap complete-symbol]
-       'irony-completion-at-point-async))
+   ;; (defun fps/c-irony-completion-hook () 
+   ;;   (define-key irony-mode-map [remap completion-at-point]
+   ;;     'irony-completion-at-point-async)
+   ;;   (define-key irony-mode-map [remap complete-symbol]
+   ;;     'irony-completion-at-point-async))
 
-   (use-package company-irony
-     :ensure t
-     :init
-     (add-hook 'irony-mode-hook 'fps/c-irony-completion-hook)
-     (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-     (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
-     (setq company-backends (delete 'company-semantic company-backends))
-     (setq company-idle-delay 0)
-     :config
-     (eval-after-load 'company
-       '(add-to-list
-         'company-backends '(company-irony-c-headers company-irony))))
+   ;; (use-package company-irony
+   ;;   :ensure t
+   ;;   :init
+   ;;   (add-hook 'irony-mode-hook 'fps/c-irony-completion-hook)
+   ;;   (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+   ;;   (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
+   ;;   (setq company-backends (delete 'company-semantic company-backends))
+   ;;   (setq company-idle-delay 0)
+   ;;   :config
+   ;;   (eval-after-load 'company
+   ;;     '(add-to-list
+   ;;       'company-backends '(company-irony-c-headers company-irony))))
 
-   (use-package flycheck-irony
-     :ensure t
-     :config
-     (eval-after-load 'flycheck
-       '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup)))
+   ;; (use-package flycheck-irony
+   ;;   :ensure t
+   ;;   :config
+   ;;   (eval-after-load 'flycheck
+   ;;     '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup)))
 
-   (setq company-idle-delay 0)
-   (define-key c-mode-map [(tab)] 'company-complete)
-   (define-key c++-mode-map [(tab)] 'company-complete)
-   (add-hook 'c++-mode-hook 'flycheck-mode)
-   (add-hook 'c-mode-hook 'flycheck-mode)
+   ;; (setq company-idle-delay 0)             
+   ;; (define-key c-mode-map [(tab)] 'company-complete)
+   ;; (define-key c++-mode-map [(tab)] 'company-complete)
+   ;; (add-hook 'c++-mode-hook 'flycheck-mode)
+   ;; (add-hook 'c-mode-hook 'flycheck-mode)
    #+END_SRC
 
 ** CMake
    Here is all the specifics for cmake
 
    #+BEGIN_SRC emacs-lisp
-   (require 'cmake-mode)
-   (setq auto-mode-alist 
+   (use-package cmake-mode
+     :ensure t
+     :init
+     (setq auto-mode-alist 
       (append 
        '(("CMakeLists\\.txt\\'" . cmake-mode))
        '(("\\.cmake\\'" . cmake-mode))
        auto-mode-alist))
-   (autoload 'cmake-font-lock-activate "cmake-font-lock" nil t)
-   (add-hook 'cmake-mode-hook 'cmake-font-lock-activate)
+     (autoload 'cmake-font-lock-activate "cmake-font-lock" nil t)
+     (add-hook 'cmake-mode-hook 'cmake-font-lock-activate))
+
    #+END_SRC
 
 ** YAML
@@ -1526,7 +1681,7 @@
        (search-backward " $/math$")))
    #+END_SRC
 
-   Most of my writing in this markup is in Norwegian, so the dictionary is
+   Most of my writing in this markup is in English/Swedish, so the dictionary is
    set accordingly. The markup is also sensitive to line breaks, so
    =auto-fill-mode= is disabled. Of course we want to bind our lovely
    function to a key!
@@ -1575,6 +1730,33 @@
    #+BEGIN_SRC emacs-lisp
    (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
    (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+   #+END_SRC
+** Rust
+** Go
+   Here is the Go specific things.
+
+   #+BEGIN_SRC emacs-lisp
+
+   (use-package go-eldoc
+     :ensure t
+     :defer 2)
+
+
+   (use-package go-guru
+     :ensure t
+     )
+
+
+   (use-package go-mode
+     :ensure t
+     :init
+     (setq gofmt-command "goimports"
+           go-fontify-function-calls nil
+           company-idle-delay nil)
+     :config
+     (require 'go-guru)
+     )
+
    #+END_SRC
 
 ** Magit
@@ -1631,7 +1813,7 @@
   (define-key company-active-map (kbd "C-:") 'helm-company)
   #+END_SRC
 
-** Bindings for [[http://emacs-helm.github.io/helm/][Helm]]
+** COMMENT Bindings for [[http://emacs-helm.github.io/helm/][Helm]]
 
   #+BEGIN_SRC emacs-lisp
   (define-key custom-bindings-map (kbd "C-c h")   'helm-command-prefix)
