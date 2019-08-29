@@ -33,3 +33,7 @@ games/
 session*
 company-statistics-cache*
 url/
+.extension
+mspyls
+transient
+snippets

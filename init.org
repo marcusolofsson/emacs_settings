@@ -176,12 +176,16 @@
    =Command=-key as the =Meta=-key.
 
    #+BEGIN_SRC emacs-lisp
-   (when (eq system-type 'darwin)
-     (setq ns-pop-up-frames nil
+   (when (memq window-system '(mac ns x))
+     (use-package exec-path-from-shell
+       :ensure t)
+     (exec-path-from-shell-initialize))
+
+   (when (memq window-system '(mac ns))
+       (setq ns-pop-up-frames nil
            mac-option-modifier nil
            mac-command-modifier 'meta
-           select-enable-clipboard t)
-     (exec-path-from-shell-initialize))
+           select-enable-clipboard t))
    #+END_SRC
 
 ** Require
@@ -215,6 +219,11 @@
      :config
      (yas-global-mode 1))
 
+   (use-package drag-stuff
+     :ensure t
+     :config
+     (drag-stuff-global-mode 1))
+
    (use-package company
      :diminish company-mode
      :defines
@@ -240,9 +249,9 @@
        c-mode
        objc-mode
        python-mode) . (lambda () (set (make-local-variable 'company-backends)
-                                      '((company-yasnippet
-                                         company-lsp
-                                         company-files)))))
+                                      '((company-lsp
+                                         company-files
+                                         company-yasnippet)))))
      :config
      (use-package company-box
        :ensure t
@@ -299,13 +308,13 @@
                  (TypeParameter . ,(all-the-icons-faicon "hashtag" :height 0.65 :v-adjust 0.07 :face 'font-lock-const-face))
                  (Template . ,(all-the-icons-faicon "code" :height 0.7 :v-adjust 0.02 :face 'font-lock-variable-name-face))))))
 
-     (use-package company-quickhelp
-       :ensure t
-       :defines company-quickhelp-delay
-       :bind (:map company-active-map
-                   ("M-h" . company-quickhelp-manual-begin))
-       :hook (global-company-mode . company-quickhelp-mode)
-       :custom (company-quickhelp-delay 0.8))
+     ;; (use-package company-quickhelp
+     ;;   :ensure t
+     ;;   :defines company-quickhelp-delay
+     ;;   :bind (:map company-active-map
+     ;;               ("M-h" . company-quickhelp-manual-begin))
+     ;;   :hook (global-company-mode . company-quickhelp-mode)
+     ;;   :custom (company-quickhelp-delay 0.8))
 
      (use-package company-statistics
        :ensure t
@@ -330,9 +339,13 @@
      :ensure t
      :init
      (setq flycheck-checker-error-threshold 10000)
-     (add-hook 'after-init-hook #'global-flycheck-mode)
-     (add-hook 'elpy-mode-hook 'flycheck-mode))
-
+     (add-hook 'after-init-hook #'global-flycheck-mode))
+     ;; (add-hook 'elpy-mode-hook 'flycheck-mode))
+   (use-package projectile
+     :ensure t
+     :diminish
+     :config
+     (projectile-mode 1))
    (use-package neotree
      :ensure t
      :bind
@@ -349,6 +362,19 @@
      :ensure t)
 
    (use-package async
+     :ensure t)
+
+   (use-package git-gutter
+     :ensure t
+     :config
+     (global-git-gutter-mode 1)
+     (dolist (p '((git-gutter:added    . "#0c0")
+                  (git-gutter:deleted  . "#c00")
+                  (git-gutter:modified . "#c0c")))
+       (set-face-foreground (car p) (cdr p))
+       (set-face-background (car p) (cdr p))))
+
+   (use-package git-gutter-fringe
      :ensure t)
    #+END_SRC
 
@@ -479,10 +505,8 @@
               column-number-mode           ; Show column number in mode line
               delete-selection-mode        ; Replace selected text
               dirtrack-mode                ; directory tracking in *shell*
-              drag-stuff-global-mode       ; Drag stuff around
-              global-git-gutter-mode       ; Show changes latest commit
-              global-prettify-symbols-mode ; Greek letters should look greek
-              golden-ratio-mode            ; Automatic resizing of windows
+;;              global-prettify-symbols-mode ; Greek letters should look greek
+;;              golden-ratio-mode            ; Automatic resizing of windows
               projectile-mode              ; Manage and navigate projects
               recentf-mode                 ; Recently opened files
               yas-global-mode              ; Enable yasnippet
@@ -501,6 +525,19 @@
 
 ** Visuals
 
+   If by any chance I need to edit/open a file whit DOS file ending this 
+   removes the pesky ^M in the end
+
+   #+BEGIN_SRC emacs-lisp
+   (defun remove-dos-eol ()
+     "Do not show ^M in files containing mixed UNIX and DOS line-endings"
+     (interactive)
+     (setq buffer-display-table (make-display-table))
+     (aset buffer-display-table ?\^M []))
+
+   (add-hook 'text-mode-hook 'remove-dos-eol)
+   #+END_SRC
+  
    Initialize the doom-themes and doom-modeline.
    Change the color-theme to =spacemacs-dark=. Since I love me some darker
    themes.
@@ -553,7 +590,7 @@
 
    #+BEGIN_SRC emacs-lisp
    (cond ((member "Source Code Pro" (font-family-list))
-          (set-face-attribute 'default nil :font "Source Code Pro-10"))
+          (set-face-attribute 'default nil :font "Source Code Pro-8"))
          ((member "Inconsolata" (font-family-list))
           (set-face-attribute 'default nil :font "Inconsolata-14")))
    #+END_SRC
@@ -601,11 +638,6 @@
    #+BEGIN_SRC emacs-lisp
    (require 'git-gutter-fringe)
 
-   (dolist (p '((git-gutter:added    . "#0c0")
-                (git-gutter:deleted  . "#c00")
-                (git-gutter:modified . "#c0c")))
-     (set-face-foreground (car p) (cdr p))
-     (set-face-background (car p) (cdr p)))
    #+END_SRC
 
    Having line numbers in all buffers and windows is one thing I can't live 
@@ -619,11 +651,6 @@
    New in Emacs 24.4 is the =prettify-symbols-mode=! It's neat.
 
    #+BEGIN_SRC emacs-lisp
-   (setq-default prettify-symbols-alist '(("lambda" . ?λ)
-                                          ("delta" . ?Δ)
-                                          ("gamma" . ?Γ)
-                                          ("phi" . ?φ)
-                                          ("psi" . ?ψ)))
    (setq powerline-utf-8-separator-left        #xe0b0
          powerline-utf-8-separator-right       #xe0b2
          airline-utf-glyph-separator-left      #xe0b0
@@ -694,7 +721,7 @@
          company-selection-wrap-around t
          company-transformers '(company-sort-by-occurrence
                                 company-sort-by-backend-importance))
-   (company-quickhelp-mode)
+   ;; (company-quickhelp-mode)
    #+END_SRC
 
    Yasnippet is one of those things that I customize a lot so I have another
@@ -901,7 +928,7 @@
      (flycheck-plantuml-setup))
    #+END_SRC
 
-** RTags
+** COMMENT RTags
 
    Rtags is a great code static analyzer (sorta)
    it gives many features to the c++ toolkit
@@ -1060,7 +1087,7 @@
             ("C-r" . swiper)))
    #+END_SRC
 
-** CMake-IDE
+** COMMENT CMake-IDE
    I use the brilliant cmake-ide to auto-generate code from
    current project and feed it to rtags ans such things.
 
@@ -1071,6 +1098,110 @@
      (cmake-ide-setup))
    #+END_SRC
 
+** LSP
+   Using LSP might be benificial
+   #+BEGIN_SRC emacs-lisp
+   (use-package lsp-mode
+     :ensure t
+     :commands lsp
+     :hook ((c-mode c++-mode objc-mode python-mode go-mode) . lsp)
+     :bind (:map lsp-mode-map
+                 ("C-c r" . lsp-rename))
+     :custom
+     ;; debug
+     (lsp-print-io nil)
+     (lsp-trace nil)
+     (lsp-print-performace nil)
+     ;; general
+     (lsp-auto-guess-root t)
+     (lsp-document-sync-method 'incremental)
+     (lsp-response-timeout 10)
+     (lsp-prefer-flymake nil)
+     (lsp-pyls-plugins-pylint-enabled nil)
+     :config
+     (require 'lsp-clients)
+     ;; LSP-UI things
+     (use-package lsp-ui
+       :custom
+       (lsp-ui-doc-enable nil)
+       (lsp-ui-doc-header t)
+       (lsp-ui-doc-include-signature nil)
+       (lsp-ui-doc-position 'at-point) ;; top, bottom, or at-point
+       (lsp-ui-doc-max-width 120)
+       (lsp-ui-doc-max-height 30)
+       (lsp-ui-doc-use-childframe t)
+       (lsp-ui-doc-use-webkit t)
+       ;; lsp-ui-flycheck
+       (lsp-ui-flycheck-enable t)
+       ;; lsp-ui-sideline
+       (lsp-ui-sideline-enable nil)
+       (lsp-ui-sideline-ignore-duplicate t)
+       (lsp-ui-sideline-show-symbol t)
+       (lsp-ui-sideline-show-hover t)
+       (lsp-ui-sideline-show-diagnostics nil)
+       (lsp-ui-sideline-show-code-actions t)
+       ;; lsp-ui-imenu
+       (lsp-ui-imenu-enable t)
+       (lsp-ui-imenu-kind-position 'top)
+       ;; lsp-ui-peek
+       (lsp-ui-peek-enable t)
+       (lsp-ui-peek-peek-height 20)
+       (lsp-ui-peek-list-width 50)
+       (lsp-ui-peek-fontify 'on-demand)
+       :preface
+       (defun ladicle/toggle-lsp-ui-doc ()
+         (interactive)
+         (if lsp-ui-doc-mode
+             (progn
+               (lsp-ui-doc-mode -1)
+               (lsp-ui-doc--hide-frame))
+           (lsp-ui-doc-mode 1)))
+       :bind
+       (:map lsp-mode-map
+             ("C-c C-r" . lsp-ui-peek-find-references)
+             ("C-c C-j" . lsp-ui-peek-find-definitions)
+             ("C-c i"   . lsp-ui-peek-find-implementation)
+             ("C-c m"   . lsp-ui-imenu)
+             ("C-c s"   . lsp-ui-sideline-mode)
+             ("C-c d"   . ladicle/toggle-lsp-ui-doc))
+       :hook
+       (lsp-mode . lsp-ui-mode))
+     (lsp-register-client
+      (make-lsp-client :new-connection (lsp-stdio-connection
+                                        (lambda () (cons "GOP's"
+                                                         lsp-clients-go-server-args)))
+                       :major-modes '(go-mode)
+                       :priority 2
+                       :initialization-options 'lsp-clients-go--make-init-options
+                       :server-id 'go-bingo
+                       :library-folders-fn (lambda (_workspace)
+                                             lsp-clients-go-library-directories)))
+     ;; DAP
+     (use-package dap-mode
+       :ensure t
+       :custom
+       (dap-go-debug-program `("node" "~/.extensions/go/out/src/debugAdapter/goDebug.js"))
+       :config
+       (dap-mode 1)
+       (require 'dap-gdb-lldb)     ; download and expand lldb-vscode to the =~/.extensions/webfreak.debug=
+       (dap-gdb-lldb-setup)
+       (require 'dap-go)           ; download and expand vscode-go-extenstion to the =~/.extensions/go=
+       (dap-go-setup)
+       (require 'dap-python)
+
+       (use-package dap-ui
+         :ensure nil
+         :config
+         (dap-ui-mode 1)))
+     ;; Lsp completion
+     (use-package company-lsp
+       :ensure t
+       :custom
+       (company-lsp-cache-candidates t) ;; auto, t(always using a cache), or nil
+       (company-lsp-async t)
+       (company-lsp-enable-snippet t)
+       (company-lsp-enable-recompletion t)))
+    #+END_SRC
 ** Yasnippet
 
    I have some small snippets that I made my self and i need them on all systems
@@ -1536,40 +1667,41 @@
    I'm using irony to help me when coding in c++ 
 
    #+BEGIN_SRC emacs-lisp
-   (add-hook 'c++-mode-hook 'irony-mode)
-   (add-hook 'c-mode-hook 'irony-mode)
-   (add-hook 'objc-mode-hook 'irony-mode)
+   ;; (add-hook 'c++-mode-hook 'irony-mode)
+   ;; (add-hook 'c-mode-hook 'irony-mode)
+   ;; (add-hook 'objc-mode-hook 'irony-mode)
 
-   (defun fps/c-irony-completion-hook () 
-     (define-key irony-mode-map [remap completion-at-point]
-       'irony-completion-at-point-async)
-     (define-key irony-mode-map [remap complete-symbol]
-       'irony-completion-at-point-async))
+   ;; (defun fps/c-irony-completion-hook () 
+   ;;   (define-key irony-mode-map [remap completion-at-point]
+   ;;     'irony-completion-at-point-async)
+   ;;   (define-key irony-mode-map [remap complete-symbol]
+   ;;     'irony-completion-at-point-async))
 
-   (use-package company-irony
-     :ensure t
-     :init
-     (add-hook 'irony-mode-hook 'fps/c-irony-completion-hook)
-     (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-     (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
-     (setq company-backends (delete 'company-semantic company-backends))
-     (setq company-idle-delay 0)
-     :config
-     (eval-after-load 'company
-       '(add-to-list
-         'company-backends '(company-irony-c-headers company-irony))))
+   ;; (use-package company-irony
+   ;;   :ensure t
+   ;;   :init
+   ;;   (add-hook 'irony-mode-hook 'fps/c-irony-completion-hook)
+   ;;   (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+   ;;   (add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
+   ;;   (setq company-backends (delete 'company-semantic company-backends))
+   ;;   (setq company-idle-delay 0)
+   ;;   :config
+   ;;   (eval-after-load 'company
+   ;;     '(add-to-list
+   ;;       'company-backends '(company-irony-c-headers company-irony))))
 
-   (use-package flycheck-irony
-     :ensure t
-     :config
-     (eval-after-load 'flycheck
-       '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup)))
+   ;; (use-package flycheck-irony
+   ;;   :ensure t
+   ;;   :config
+   ;;   (eval-after-load 'flycheck
+   ;;     '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup)))
 
-   (setq company-idle-delay 0)             
-   (define-key c-mode-map [(tab)] 'company-complete)
-   (define-key c++-mode-map [(tab)] 'company-complete)
-   (add-hook 'c++-mode-hook 'flycheck-mode)
-   (add-hook 'c-mode-hook 'flycheck-mode)
+
+   ;; (setq company-idle-delay 0)             
+   ;; (define-key c-mode-map [(tab)] 'company-complete)
+   ;; (define-key c++-mode-map [(tab)] 'company-complete)
+   ;; (add-hook 'c++-mode-hook 'flycheck-mode)
+   ;; (add-hook 'c-mode-hook 'flycheck-mode)
    #+END_SRC
 
 ** CMake
@@ -1733,17 +1865,29 @@
    instructions from the site.
 
    #+BEGIN_SRC emacs-lisp
+   (use-package lsp-python-ms
+     :ensure t
+     :hook (python-mode . (lambda ()
+                            (require 'lsp-python-ms)
+                            (lsp))))
+
+   (use-package virtualenvwrapper
+     :ensure t
+     :config
+     (venv-initialize-interactive-shells)
+     (venv-initialize-eshell))
+
    (use-package company-jedi
-                :ensure t
-                :config
-                ;; (setq jedi:environment-virtualenv (list (expand-file-name "~/.emacs.d/.python-environments")))
-                (add-hook 'python-mode-hook 'jedi:setup)
-                (setq jedi:complete-on-dot t)
-                (setq jedi:use-shortcuts t)
-                ;; (add-hook 'python-mode-hook 'jedi:setup)
-                (defun fps/python-load-hook ()
-                  (add-to-list 'company-backends 'company-jedi))
-                (add-hook 'python-mode-hook 'fps/python-load-hook))
+        :ensure t
+        :config
+        ;; (setq jedi:environment-virtualenv (list (expand-file-name "~/.emacs.d/.python-environments")))
+        (add-hook 'python-mode-hook 'jedi:setup)
+        (setq jedi:complete-on-dot t)
+        (setq jedi:use-shortcuts t)
+        ;; (add-hook 'python-mode-hook 'jedi:setup)
+        (defun fps/python-load-hook ()
+          (add-to-list 'company-backends 'company-jedi))
+        (add-hook 'python-mode-hook 'fps/python-load-hook))
 
    (use-package pygen
      :ensure t
@@ -1762,14 +1906,16 @@
    (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
    #+END_SRC
 ** Rust
-** Go
+** Golang
    Here is the Go specific things.
 
    #+BEGIN_SRC emacs-lisp
 
-   (use-package go-eldoc
-     :ensure t
-     :defer 2)
+     (use-package go-eldoc
+       :ensure t
+       :defer 2
+       :config
+       (add-hook 'go-mode-hook 'go-eldoc-setup))
 
 
    (use-package go-guru
@@ -1857,7 +2003,7 @@
 ** Bindings for [[http://magit.github.io][Magit]]
 
   #+BEGIN_SRC emacs-lisp
-  (define-key custom-bindings-map (kbd "C-c m") 'magit-status)
+  (define-key custom-bindings-map (kbd "C-c M-g") 'magit-status)
   #+END_SRC
 
 ** COMMENT Bindings for [[http://company-mode.github.io/][company-mode]]
@@ -1931,10 +2077,10 @@
 
    ;;
    ;; rtags keybindings
-   (define-key c-mode-map (kbd "M-.") 'rtags-find-symbol-at-point)
-   (define-key c-mode-map (kbd "M-,") (function rtags-find-references-at-point))
-   (define-key c++-mode-map (kbd "M-.") 'rtags-find-symbol-at-point)
-   (define-key c++-mode-map (kbd "M-,") (function rtags-find-references-at-point))
+   ;; (define-key c-mode-map (kbd "M-.") 'rtags-find-symbol-at-point)
+   ;; (define-key c-mode-map (kbd "M-,") (function rtags-find-references-at-point))
+   ;; (define-key c++-mode-map (kbd "M-.") 'rtags-find-symbol-at-point)
+   ;; (define-key c++-mode-map (kbd "M-,") (function rtags-find-references-at-point))
 
    (define-key custom-bindings-map (kbd "<C-M-tab>") 'clang-format-region)
    ;;
