@@ -219,6 +219,9 @@
      :config
      (yas-global-mode 1))
 
+   (use-package json-mode
+     :ensure t)
+
    (use-package drag-stuff
      :ensure t
      :config
@@ -328,30 +331,88 @@
      :config
      (global-undo-tree-mode))
 
-   ;; (use-package elpy
-   ;;   :ensure t
-   ;;   :init
-   ;;   (elpy-enable)
-   ;;   (setq elpy-rpc-ignored-buffer-size 500000 )
-   ;;   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules)))
-
    (use-package flycheck
      :ensure t
      :init
      (setq flycheck-checker-error-threshold 10000)
      (add-hook 'after-init-hook #'global-flycheck-mode))
-     ;; (add-hook 'elpy-mode-hook 'flycheck-mode))
+
    (use-package projectile
      :ensure t
      :diminish
      :config
      (projectile-mode 1))
-   (use-package neotree
+
+   (use-package treemacs
+     :ensure t
+     :config
+     (treemacs-follow-mode t)
+     (setq treemacs-width 35
+           treemacs-display-in-side-window t
+           treemacs-indentation-string (propertize " " 'face 'font-lock-comment-face)
+           treemacs-indentation 1)
+     (add-hook 'treemacs-mode-hook #'hide-mode-line-mode)
+     (add-hook 'treemacs-mode-hook (lambda ()
+                                     (linum-mode -1)
+                                     (fringe-mode 0)
+                                     (setq buffer-face-mode-face `(:background "#211C1C"))
+                                     (buffer-face-mode 1)))
+     ;; Improve treemacs icons
+     (with-eval-after-load 'treemacs
+       (with-eval-after-load 'all-the-icons
+         (let ((all-the-icons-default-adjust 0)
+               (tab-width 1))
+           ;; Root icon
+           (setq treemacs-icon-root-png
+                 (concat (all-the-icons-octicon "repo" :height 0.8 :v-adjust -0.2) " "))
+           ;; File icon
+           (setq treemacs-icon-open-png
+                 (concat
+                  (all-the-icons-octicon "chevron-down" :height 0.8 :v-adjust 0.1)
+                  "\t"
+                  (all-the-icons-octicon "file-directory" :v-adjust 0)
+                  "\t")
+                 treemacs-icon-closed-png
+                 (concat
+                  (all-the-icons-octicon "chevron-right" :height 0.8 :v-adjust 0.1 :face 'font-lock-doc-face)
+                  "\t"
+                  (all-the-icons-octicon "file-directory" :v-adjust 0 :face 'font-lock-doc-face)
+                  "\t"))
+           ;; File-type icons
+           (setq treemacs-icons-hash (make-hash-table :size 200 :test #'equal)
+                 treemacs-icon-fallback (concat
+                                         "\t\t"
+                                         (all-the-icons-faicon "file-o" :face 'all-the-icons-dsilver
+                                                               :height 0.8 :v-adjust 0.0)
+                                         "\t")
+                 treemacs-icon-text treemacs-icon-fallback)
+           (dolist (item all-the-icons-icon-alist)
+             (let* ((extension (car item))
+                    (func (cadr item))
+                    (args (append (list (caddr item)) '(:v-adjust -0.05) (cdddr item)))
+                    (icon (apply func args))
+                    (key (s-replace-all '(("^" . "") ("\\" . "") ("$" . "") ("." . "")) extension))
+                    (value (concat "\t\t" icon "\t")))
+               (unless (ht-get treemacs-icons-hash (s-replace-regexp "\\?" "" key))
+                 (ht-set! treemacs-icons-hash (s-replace-regexp "\\?" "" key) value))
+               (unless (ht-get treemacs-icons-hash (s-replace-regexp ".\\?" "" key))
+                 (ht-set! treemacs-icons-hash (s-replace-regexp ".\\?" "" key) value))))))))
+
+   (use-package treemacs-projectile
+     :ensure t)
+
+   (use-package docker
      :ensure t
      :bind
-     ("<f9>" . neotree-toggle)
-     :config (setq neo-theme (if (display-graphic-p) 'icons 'arrow)))
+     ("C-c d" . docker))
 
+   (use-package dockerfile-mode
+     :ensure t
+     :config
+     (add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode)))
+
+   (use-package docker-compose-mode
+     :ensure t)
    (use-package itail
      :ensure t)
 
@@ -404,8 +465,6 @@
 
    #+BEGIN_SRC emacs-lisp
    (setq gc-cons-threshold 64000000)
-
-   (add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold 800000)))
    #+END_SRC
 
 
@@ -505,20 +564,12 @@
               column-number-mode           ; Show column number in mode line
               delete-selection-mode        ; Replace selected text
               dirtrack-mode                ; directory tracking in *shell*
-;;              global-prettify-symbols-mode ; Greek letters should look greek
-;;              golden-ratio-mode            ; Automatic resizing of windows
-              projectile-mode              ; Manage and navigate projects
               recentf-mode                 ; Recently opened files
-              yas-global-mode              ; Enable yasnippet
               show-paren-mode))            ; Highlight matching parentheses
 
      (funcall mode 1))
 
-   (add-hook 'after-init-hook 'global-company-mode)
    (setq projectile-completion-system 'ivy)
-   (when (version< emacs-version "24.4")
-     (eval-after-load 'auto-compile
-       '((auto-compile-on-save-mode 1))))  ; compile .el files on save
 
    (add-hook 'ediff-prepare-buffer-hook #'outline-show-all)
    #+END_SRC
@@ -1555,6 +1606,9 @@
    I use =Paredit= when editing lisp code, we enable this for all lisp-modes.
 
    #+BEGIN_SRC emacs-lisp
+   (use-package paredit
+     :ensure t)
+
    (dolist (mode '(cider-repl-mode
                    clojure-mode
                    ielm-mode
