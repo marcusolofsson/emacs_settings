@@ -219,6 +219,14 @@
      :config
      (yas-global-mode 1))
 
+   (use-package multiple-cursors
+     :ensure t)
+
+   (use-package browse-kill-ring
+     :ensure t
+     :config
+     (setq browse-kill-ring-highlight-current-entry t))
+
    (use-package json-mode
      :ensure t)
 
@@ -311,14 +319,6 @@
                  (TypeParameter . ,(all-the-icons-faicon "hashtag" :height 0.65 :v-adjust 0.07 :face 'font-lock-const-face))
                  (Template . ,(all-the-icons-faicon "code" :height 0.7 :v-adjust 0.02 :face 'font-lock-variable-name-face))))))
 
-     ;; (use-package company-quickhelp
-     ;;   :ensure t
-     ;;   :defines company-quickhelp-delay
-     ;;   :bind (:map company-active-map
-     ;;               ("M-h" . company-quickhelp-manual-begin))
-     ;;   :hook (global-company-mode . company-quickhelp-mode)
-     ;;   :custom (company-quickhelp-delay 0.8))
-
      (use-package company-statistics
        :ensure t
        :init
@@ -345,6 +345,7 @@
 
    (use-package treemacs
      :ensure t
+     :diminish
      :config
      (treemacs-follow-mode t)
      (setq treemacs-width 35
@@ -553,6 +554,8 @@
               scroll-bar-mode              ; No scroll bars either
               blink-cursor-mode))          ; The blinking cursor gets old
      (funcall mode 0))
+
+   (global-eldoc-mode -1)
    #+END_SRC
 
    Let's apply the same technique for enabling modes that are disabled by
