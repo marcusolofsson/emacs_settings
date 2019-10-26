@@ -188,7 +188,7 @@
            select-enable-clipboard t))
    #+END_SRC
 
-** Require
+** Global Package
 
    The =load-path= specifies where Emacs should look for =.el=-files (or
    Emacs lisp files). I have a directory called =site-lisp= where I keep all
@@ -218,6 +218,9 @@
      :ensure t
      :config
      (yas-global-mode 1))
+
+   (use-package hide-mode-line
+     :ensure t)
 
    (use-package multiple-cursors
      :ensure t)
@@ -618,7 +621,7 @@
      :ensure t
      :hook (after-init . doom-modeline-mode)
      :config (setq doom-modeline-buffer-file-name-style 'truncate-upto-project)
-     (setq doom-modeline-env-python-executable "python")
+     (setq doom-modeline-env-python-executable "python3")
      (setq doom-modeline-env-ruby-executable "ruby")
      (setq doom-modeline-env-perl-executable "perl")
      (setq doom-modeline-env-go-executable "go")
@@ -644,7 +647,7 @@
 
    #+BEGIN_SRC emacs-lisp
    (cond ((member "Source Code Pro" (font-family-list))
-          (set-face-attribute 'default nil :font "Source Code Pro-8"))
+          (set-face-attribute 'default nil :font "Source Code Pro-12"))
          ((member "Inconsolata" (font-family-list))
           (set-face-attribute 'default nil :font "Inconsolata-14")))
    #+END_SRC
@@ -755,8 +758,11 @@
    it's only slow on the first run!
 
    #+BEGIN_SRC emacs-lisp
-   (add-hook 'pdf-tools-enabled-hook 'auto-revert-mode)
-   (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-tools-install))
+   (use-package pdf-tools
+     :ensure t
+     :config
+     (add-hook 'pdf-tools-enabled-hook 'auto-revert-mode)
+     (add-to-list 'auto-mode-alist '("\\.pdf\\'" . pdf-tools-install)))
    #+END_SRC
 
 ** Completion
@@ -1615,8 +1621,6 @@
    (dolist (mode '(cider-repl-mode
                    clojure-mode
                    ielm-mode
-                   geiser-repl-mode
-                   slime-repl-mode
                    lisp-mode
                    emacs-lisp-mode
                    lisp-interaction-mode
@@ -1946,10 +1950,21 @@
           (add-to-list 'company-backends 'company-jedi))
         (add-hook 'python-mode-hook 'fps/python-load-hook))
 
+   (use-package importmagic
+     :ensure t
+     :diminish
+     :config
+     (add-hook 'python-mode-hook 'importmagic-mode))
+
    (use-package pygen
      :ensure t
      :config
      (add-hook 'python-mode-hook 'pygen-mode))
+
+   ;; (setq projectile-switch-project-action
+   ;;       '(lambda ()
+   ;;          (venv-projectile-auto-workon)
+   ;;          (projectile-find-file)))
    #+END_SRC
 
 ** Haskell
